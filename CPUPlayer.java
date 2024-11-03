@@ -37,7 +37,7 @@ class CPUPlayer {
         int value = Integer.MIN_VALUE;
 
         for (Move m : board.getPossibleMoves()) {
-            ++numExploredNodes;
+            //numExploredNodes++;     /// erreur ??   pas ++ si depth max ??
             Board simulatedBoard = board.clone();
             simulatedBoard.play(m, cpuMark);
 
@@ -67,7 +67,7 @@ class CPUPlayer {
         int beta = Integer.MAX_VALUE;
     
         for (Move m : board.getPossibleMoves()) {
-            ++numExploredNodes;
+            //numExploredNodes++;
             Board simulatedBoard = board.clone();
             simulatedBoard.play(m, cpuMark);
 
@@ -89,7 +89,7 @@ class CPUPlayer {
         numExploredNodes++;
 
         PlayStatus state = node.getPlayStatus();
-        if (depth == MAX_DEPTH || state != PlayStatus.Unfinished) {
+        if (depth == MAX_DEPTH || state != PlayStatus.Unfinished) { ///problem ?
             if (state == PlayStatus.Tie) {
                 return 0;
             } else {
@@ -111,12 +111,15 @@ class CPUPlayer {
         return value;
     }
 
+    //on ne veut pas couper les branches directement reliees a la racine puisque on veut tous les moves possibles
 
-    private int alphaBeta(Board node, int depth, int alpha, int beta, boolean max) {
+    private int alphaBeta(Board node, int depth, int alpha, int beta, boolean noeudMax) {
         numExploredNodes++;
     
         PlayStatus state = node.getPlayStatus();
         if (depth == MAX_DEPTH || state != PlayStatus.Unfinished) {
+
+
             if (state == PlayStatus.Tie) {
                 return 0;
             } else {
@@ -124,24 +127,46 @@ class CPUPlayer {
             }
         }
 
-        Mark currentMark = max ? cpuMark : cpuMark.enemy();
-        int value = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        Mark currentMark;
+        if (noeudMax){
+            currentMark = cpuMark;
+        }
+        else{
+            currentMark = cpuMark.enemy();
+        }
+
+        int value;
+        if (noeudMax){
+            value = Integer.MIN_VALUE;
+        }
+        else{
+            value = Integer.MAX_VALUE;
+        }
 
         // Explorer toutes les possibilitées 
         for (Move move : node.getPossibleMoves()) {
             Board childBoard = node.clone();
             childBoard.play(move, currentMark);
 
-            if (max) {
+
+            if (noeudMax) {
+
                 value = Math.max(value, alphaBeta(childBoard, depth + 1, alpha, beta, false));
                 alpha = Math.max(alpha, value);
-                if (alpha >= beta) break;  // Stop si la valeur est supérieure ou égale à beta
+                if (alpha >= beta){
+                    break;  // Stop si la valeur est supérieure ou égale à beta
+                }
             } else {
+
                 value = Math.min(value, alphaBeta(childBoard, depth + 1, alpha, beta, true));
                 beta = Math.min(beta, value);
-                if (alpha >= beta) break;  // Stop si la valeur est inférieure ou égale à alpha
+                if (alpha >= beta){
+                    break;  // Stop si la valeur est inférieure ou égale à alpha
+                }
             }
         }
         return value;
     }
+
+
 }
