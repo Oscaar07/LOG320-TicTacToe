@@ -17,6 +17,9 @@ class CPUPlayer {
 
     private Mark cpuMark;
 
+    private int nombreCaptures = 0;
+    private int nombreCapturesEnemy = 0;
+
     // Le constructeur reçoit en paramètre le
     // joueur MAX (X ou O)
     public CPUPlayer(Mark cpu) {
@@ -111,7 +114,6 @@ class CPUPlayer {
         return value;
     }
 
-    //on ne veut pas couper les branches directement reliees a la racine puisque on veut tous les moves possibles
 
     private int alphaBeta(Board node, int depth, int alpha, int beta, boolean noeudMax) {
         numExploredNodes++;
