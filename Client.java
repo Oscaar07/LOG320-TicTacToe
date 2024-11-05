@@ -1,12 +1,21 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 class Client {
     private static Board gameBoard;
     private static CPUPlayer ai;
     private static Mark playerColor;
     private static final boolean DEBUG_MODE = true;
+    private static Set<String> invalidMoves = new HashSet<>();
+    private static Set<String> occupiedPositions = new HashSet<>();
+    private static final String[] SAFE_MOVES = {
+        "E8", "K8", "H4", "H12", "D8", "L8", 
+        "E12", "K12", "E4", "K4", "C8", "M8"
+    };
+    private static int safeMovesIndex = 0;
 
     public static void main(String[] args) {
         try {
@@ -49,8 +58,10 @@ class Client {
         gameBoard = new Board();
         playerColor = color;
         ai = new CPUPlayer(color);
+        invalidMoves.clear();
+        occupiedPositions.clear();
+        safeMovesIndex = 0;
 
-        // Lire l'état initial (série de 0)
         byte[] buffer = new byte[1024];
         int size = input.available();
         input.read(buffer, 0, size);
@@ -58,7 +69,6 @@ class Client {
         debugPrint("Nouvelle partie - Nous jouons: " + (color == Mark.RED ? "ROUGE" : "NOIR"));
         printBoard();
 
-        // Si nous sommes Rouge, jouer le premier coup (H8)
         if (color == Mark.RED) {
             String firstMove = "H8";
             sendMove(output, firstMove);
@@ -69,53 +79,122 @@ class Client {
     }
 
     private static void playTurn(BufferedInputStream input, BufferedOutputStream output) throws IOException {
-        // Lire le coup adverse
-        byte[] buffer = new byte[16];
-        int size = input.available();
-        input.read(buffer, 0, size);
-        String lastMove = new String(buffer).trim();
-        
-        debugPrint("Dernier coup adverse reçu: " + lastMove);
+        try {
+            // Lire et traiter le coup adverse
+            byte[] buffer = new byte[16];
+            int size = input.available();
+            input.read(buffer, 0, size);
+            String lastMove = new String(buffer).trim();
+            
+            debugPrint("Dernier coup adverse reçu: " + lastMove);
 
-        // Valider et jouer le coup adverse
-        if (isValidMove(lastMove)) {
-            Move opponentMove = new Move(lastMove.charAt(0), 
-                                       Integer.parseInt(lastMove.substring(1)));
-            gameBoard.play(opponentMove, playerColor.enemy());
-            printBoard();
-        }
+            // Mettre à jour notre représentation du plateau avec le coup adverse
+            if (isValidMove(lastMove)) {
+                try {
+                    Move opponentMove = new Move(lastMove.charAt(0), 
+                                               Integer.parseInt(lastMove.substring(1)));
+                    gameBoard.play(opponentMove, playerColor.enemy());
+                    occupiedPositions.add(lastMove);
+                    printBoard();
+                } catch (Exception e) {
+                    debugPrint("Erreur lors de la mise à jour du plateau avec le coup adverse: " + e.getMessage());
+                }
+            }
 
-        // Déterminer notre coup
-        String ourMove;
-        if (gameBoard.getMoveCount() == 0 && playerColor == Mark.RED) {
-            // Premier coup Rouge : H8 obligatoire
-            ourMove = "H8";
-        } else if (gameBoard.getMoveCount() == 1 && playerColor == Mark.BLACK) {
-            // Premier coup Noir : après H8
-            ourMove = "I8";
-        } else if (playerColor == Mark.RED && gameBoard.getMoveCount() == 1) {
-            // Deuxième coup Rouge : distance 3+ du centre
-            ArrayList<Move> validMoves = ai.generateSecondRedMove(gameBoard);
-            ourMove = validMoves.get(0).toString();
-        } else {
-            // Coup normal
-            ArrayList<Move> moves = ai.getNextMoveAB(gameBoard);
-            ourMove = moves.get(0).toString();
-        }
-
-        // Vérifier que notre coup est valide avant de l'envoyer
-        if (isValidMove(ourMove)) {
+            // Obtenir et jouer notre prochain coup
+            String ourMove = getNextValidMove();
             sendMove(output, ourMove);
-            gameBoard.play(new Move(ourMove.charAt(0), 
-                                  Integer.parseInt(ourMove.substring(1))), 
-                          playerColor);
-            debugPrint("Notre coup joué: " + ourMove);
-            printBoard();
-        } else {
-            debugPrint("ERREUR: Tentative de coup invalide: " + ourMove);
-            // Jouer un coup de secours
+            
+            try {
+                Move move = new Move(ourMove.charAt(0), 
+                                   Integer.parseInt(ourMove.substring(1)));
+                gameBoard.play(move, playerColor);
+                occupiedPositions.add(ourMove);
+                debugPrint("Notre coup joué: " + ourMove);
+                printBoard();
+            } catch (Exception e) {
+                debugPrint("Erreur lors de notre coup: " + e.getMessage());
+                invalidMoves.add(ourMove);
+                retryMove(output);
+            }
+        } catch (Exception e) {
+            debugPrint("Erreur dans playTurn: " + e.getMessage());
             retryMove(output);
         }
+    }
+
+    private static String getNextValidMove() {
+        // Premier coup rouge
+        if (gameBoard.getMoveCount() == 0 && playerColor == Mark.RED) {
+            return "H8";
+        }
+
+        // Deuxième coup rouge - doit être à distance 3+ du centre
+        if (gameBoard.getMoveCount() == 2 && playerColor == Mark.RED) {
+            for (String move : SAFE_MOVES) {
+                if (!invalidMoves.contains(move) && !occupiedPositions.contains(move)) {
+                    return move;
+                }
+            }
+        }
+
+        // Essayer d'obtenir un coup de l'IA
+        try {
+            ArrayList<Move> moves = ai.getNextMoveAB(gameBoard);
+            for (Move move : moves) {
+                String moveStr = move.toString();
+                if (!invalidMoves.contains(moveStr) && !occupiedPositions.contains(moveStr)) {
+                    return moveStr;
+                }
+            }
+        } catch (Exception e) {
+            debugPrint("Erreur lors de la génération du coup par l'IA: " + e.getMessage());
+        }
+
+        // Si rien ne marche, utiliser un coup de secours
+        return findSafeMove();
+    }
+
+    private static String determineNextMove() {
+        // Cas spéciaux
+        if (gameBoard.getMoveCount() == 0 && playerColor == Mark.RED) {
+            return "H8";
+        }
+        if (gameBoard.getMoveCount() == 1 && playerColor == Mark.BLACK) {
+            return "I8";
+        }
+        if (playerColor == Mark.RED && gameBoard.getMoveCount() == 2) {
+            ArrayList<Move> validMoves = ai.generateSecondRedMove(gameBoard);
+            String move = validMoves.get(0).toString();
+            if (!invalidMoves.contains(move)) {
+                return move;
+            }
+            // Si le coup est invalide, utiliser un coup de secours
+            return findSafeDistantMove();
+        }
+
+        // Coup normal avec l'IA
+        ArrayList<Move> moves = ai.getNextMoveAB(gameBoard);
+        for (Move move : moves) {
+            String moveStr = move.toString();
+            if (!invalidMoves.contains(moveStr) && isValidMove(moveStr)) {
+                return moveStr;
+            }
+        }
+
+        // Si aucun coup valide n'est trouvé, utiliser un coup de secours
+        return findSafeMove();
+    }
+
+    private static String findSafeDistantMove() {
+        // Pour le second coup rouge (distance >= 3 du centre)
+        String[] distantMoves = {"E8", "K8", "H4", "H12", "D8", "L8"};
+        for (String move : distantMoves) {
+            if (!invalidMoves.contains(move)) {
+                return move;
+            }
+        }
+        return "E8"; // Coup par défaut si tous les autres sont invalides
     }
 
     // Méthode de validation des coups
@@ -137,17 +216,58 @@ class Client {
     private static void retryMove(BufferedOutputStream output) throws IOException {
         debugPrint("Coup invalide détecté, nouvel essai...");
         
-        String newMove;
-        if (gameBoard.getMoveCount() == 1 && playerColor == Mark.BLACK) {
-            // Si notre premier coup en tant que Noir était invalide, essayer un autre coup
-            newMove = "G8";
-        } else {
-            ArrayList<Move> moves = ai.getNextMoveAB(gameBoard);
-            newMove = moves.get(0).toString();
+        String newMove = findSafeMove();
+        while (invalidMoves.contains(newMove)) {
+            newMove = findSafeMove();
         }
         
         sendMove(output, newMove);
         debugPrint("Nouveau coup tenté: " + newMove);
+        
+        try {
+            gameBoard.play(new Move(newMove.charAt(0), 
+                                  Integer.parseInt(newMove.substring(1))), 
+                          playerColor);
+        } catch (Exception e) {
+            invalidMoves.add(newMove);
+            // Si même le coup de secours échoue, essayer le suivant
+            retryMove(output);
+        }
+    }
+
+    private static String findSafeMove() {
+        // Essayer les coups prédéfinis d'abord
+        for (int i = 0; i < SAFE_MOVES.length; i++) {
+            String move = SAFE_MOVES[(safeMovesIndex + i) % SAFE_MOVES.length];
+            if (!invalidMoves.contains(move) && !occupiedPositions.contains(move)) {
+                safeMovesIndex = (safeMovesIndex + i + 1) % SAFE_MOVES.length;
+                return move;
+            }
+        }
+
+        // Si tous les coups sûrs sont épuisés, chercher systématiquement
+        for (char col = 'A'; col <= 'O'; col++) {
+            for (int row = 1; row <= 15; row++) {
+                String move = "" + col + row;
+                if (!invalidMoves.contains(move) && !occupiedPositions.contains(move)) {
+                    try {
+                        if (isValidPosition(col - 'A', row - 1)) {
+                            return move;
+                        }
+                    } catch (Exception e) {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        // En dernier recours
+        return "H6";
+    }
+
+    private static boolean isValidPosition(int col, int row) {
+        return row >= 0 && row < 15 && col >= 0 && col < 15 && 
+               gameBoard.getMark(row, col) == Mark.EMPTY;
     }
 
     private static void endGame(BufferedInputStream input, BufferedOutputStream output) throws IOException {
@@ -158,7 +278,16 @@ class Client {
         
         debugPrint("Partie terminée - Dernier coup: " + lastMove);
         printBoard();
+        
+        // Envoyer l'acquittement et fermer proprement
         sendMove(output, "A0");
+        try {
+            // Optionnel : attendre un court instant pour s'assurer que le message est envoyé
+            Thread.sleep(100);
+            System.exit(0);  // Termine proprement le programme
+        } catch (InterruptedException e) {
+            System.exit(0);
+        }
     }
 
     private static void sendMove(BufferedOutputStream output, String move) throws IOException {
