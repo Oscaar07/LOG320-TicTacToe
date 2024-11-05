@@ -1,38 +1,52 @@
-class Move
-{
+class Move {
     private int row;
     private char col;
+    private boolean isInvalid; // Pour gérer le cas spécial A0
 
-    public Move(){
+    public Move() {
         row = -1;
         col = 'z';
+        isInvalid = true;
     }
 
-    public Move(char c, int r){
-        row = r;
-        col = c;
+    public Move(char c, int r) {
+        // Validation des limites
+        if (r < 1 || r > 15) {
+            throw new IllegalArgumentException(
+                "Ligne invalide: " + r + " (doit être entre 1 et 15)");
+        }
+        
+        char upperC = Character.toUpperCase(c);
+        if (upperC < 'A' || upperC > 'O') {
+            throw new IllegalArgumentException(
+                "Colonne invalide: " + c + " (doit être entre A et O)");
+        }
+        
+        this.row = r;
+        this.col = upperC;
     }
 
-    public int getIngameRow(){
+    public static Move createInvalidMove() {
+        return new Move('A', 0);
+    }
+
+    public boolean isValid() {
+        return !isInvalid;
+    }
+
+    public int getIngameRow() {
         return row;
     }
 
-    public char getIngameCol(){
+    public char getIngameCol() {
         return col;
     }
 
-    public int getGridRow(){
-        return Math.abs(row - 15);
-    }
-    public int getGetGridCol(){
-        return 
-    }
-
-    public void setRow(int r){
-        row = r;
-    }
-
-    public void setCol(char c){
-        col = c;
+    @Override
+    public String toString() {
+        if (isInvalid) {
+            return "A0";
+        }
+        return String.format("%c%d", col, row);
     }
 }
