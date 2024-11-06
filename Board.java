@@ -80,7 +80,7 @@ class Board {
             
             // Vérifier si c'est le deuxième coup rouge
             if (moveList.size() == 2 && mark == Mark.RED) {
-                int distanceFromCenter = Math.abs(m.getIngameRow() - 8) + 
+                int distanceFromCenter = Math.abs(m.getIngameRow() - 8) +   //rendrait J10 valide
                                        Math.abs(normalizedCol - 'H');
                 if (distanceFromCenter < 3) {
                     throw new IllegalArgumentException("Le deuxième coup rouge doit être à distance 3 ou plus du centre");
