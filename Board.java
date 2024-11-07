@@ -80,11 +80,11 @@ class Board {
             
             // Vérifier si c'est le deuxième coup rouge
             if (moveList.size() == 2 && mark == Mark.RED) {
-                int distanceFromCenter = Math.abs(m.getIngameRow() - 8) +   //rendrait J10 valide
-                                       Math.abs(normalizedCol - 'H');
-                if (distanceFromCenter < 3) {
+
+                if (m.getIngameRow() >= 6 && m.getIngameRow() <= 10 && m.getIngameCol() >= 'F' && m.getIngameCol() <= 'J'){
                     throw new IllegalArgumentException("Le deuxième coup rouge doit être à distance 3 ou plus du centre");
                 }
+
             }
 
             int row = Math.abs(m.getIngameRow() - 15);
@@ -298,9 +298,7 @@ class Board {
     }
 
     private boolean isValidSecondRedMove(Move move) {
-        int distanceFromCenter = Math.abs(move.getIngameRow() - 8) + 
-                               Math.abs(move.getIngameCol() - 'H');
-        return distanceFromCenter >= 3;
+        return move.getIngameRow() < 6 || move.getIngameRow() > 10 || move.getIngameCol() < 'F' || move.getIngameCol() > 'J';
     }
 
     // Méthode utilitaire pour vérifier si un coup est dans les limites

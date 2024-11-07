@@ -477,29 +477,7 @@ private long getBoardHash(Board board) {
         return result;
     }
 
-    // Méthode utilitaire pour évaluer la menace de capture
-    private int evaluateCaptureThreats(Board board, Move move, Mark mark) {
-        int threatScore = 0;
-        
-        // Vérifier si le coup peut mener à une capture
-        if (canLeadToCapture(board, move, mark)) {
-            threatScore += 500;  // Score de base pour une capture possible
-            
-            // Bonus pour captures multiples
-            if (canLeadToMultipleCaptures(board, move, mark)) {
-                threatScore += 1000;  // Bonus significatif pour captures multiples
-            }
-            
-            // Vérifier si la capture est immédiate ou nécessite des coups supplémentaires
-            Board tempBoard = new Board(board);
-            tempBoard.play(move, mark);
-            if (tempBoard.checkCapture(move, mark)) {
-                threatScore *= 2;  // Double le score pour une capture immédiate
-            }
-        }
-        
-        return threatScore;
-    }
+
 
     // Méthode pour vérifier si une séquence peut mener à une capture
     private boolean canFormCaptureThreat(Board board, int row, int col, Mark mark) {
