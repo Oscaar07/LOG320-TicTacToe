@@ -15,19 +15,21 @@ class Board {
 
     private ArrayList<Move> moveList;
 
-    // tableau de taille 15 x 15
-    private Mark[][] board;
+    private final int[] rowNumbersAroundIndex = {0, -1, -1, -1, 0, 1, 1, 1};
+    private final int[] colNumbersAroundIndex = {-1, -1, 0, 1, 1, 1, 0, -1};
+
+
+
+    private Square[] board;
 
     // Ne pas changer la signature de cette méthode
     public Board() {
-        board = new Mark[15][15];
+        board = new Square[225];
         letterToNumber = new HashMap<>();
         numberToLetter = new HashMap<>();
         
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 15; j++) {
-                board[i][j] = Mark.EMPTY;
-            }
+        for (int i = 0; i < 225; i++) {
+            board[i] = new Square(i);
         }
 
         for (int i = 0; i < 15; i++) {
@@ -42,22 +44,51 @@ class Board {
     }
 
     public Board(Board existing) {
-        // Correction du clone
-        this.board = new Mark[15][15];
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 15; j++) {
-                this.board[i][j] = existing.board[i][j];
+        board = new Square[225];
+
+        for (int i = 0; i < 225; i++) {
+            if (existing.getBoard()[i].getMark() == Mark.RED){
+                board[i] = new Square(i);
+                board[i].setMark(Mark.RED);
+            } else if (existing.getBoard()[i].getMark() == Mark.BLACK) {
+                board[i] = new Square(i);
+                board[i].setMark(Mark.BLACK);
             }
+            else{
+                board[i] = new Square(i);
+            }
+            board[i].setRedThreatValue(existing.getBoard()[i].getRedThreatValue());
+            board[i].setBlackThreatValue(existing.getBoard()[i].getBlackThreatValue());
+            board[i].setIndex(i);
+
         }
-        this.letterToNumber = new HashMap<>(existing.letterToNumber);
-        this.numberToLetter = new HashMap<>(existing.numberToLetter);
-        this.moveList = new ArrayList<>(existing.moveList);
+        moveList = new ArrayList<>();
+        for (Move move : existing.getMoveList()){
+            int row = move.getIngameRow();
+            char c = move.getIngameCol();
+            Move newMove = new Move(c, row);
+            moveList.add(newMove);
+        }
+
+        letterToNumber = new HashMap<>();
+        numberToLetter = new HashMap<>();
+
+        for (int i = 0; i < 15; i++) {
+            char letter = (char) ('A' + i);
+            letterToNumber.put(letter, i);
+        }
+        for (int i = 0; i < 15; i++) {
+            char letter = (char) ('A' + i);
+            numberToLetter.put(i, letter);
+        }
+
+
     }
 
     // Ajout de getters nécessaires
     public Mark getMark(int row, int col) {
         if (isValidPosition(row, col)) {
-            return board[row][col];
+            return board[15 * row + col].getMark();
         }
         throw new IllegalArgumentException("Position invalide");
     }
@@ -71,21 +102,6 @@ class Board {
             // Normaliser en majuscules
             char normalizedCol = Character.toUpperCase(m.getIngameCol());
             
-            // Vérifier si c'est le premier coup rouge
-            if (moveList.isEmpty() && mark == Mark.RED) {
-                if (normalizedCol != 'H' || m.getIngameRow() != 8) {
-                    throw new IllegalArgumentException("Le premier coup rouge doit être au centre (H8)");
-                }
-            }
-            
-            // Vérifier si c'est le deuxième coup rouge
-            if (moveList.size() == 2 && mark == Mark.RED) {
-
-                if (m.getIngameRow() >= 6 && m.getIngameRow() <= 10 && m.getIngameCol() >= 'F' && m.getIngameCol() <= 'J'){
-                    throw new IllegalArgumentException("Le deuxième coup rouge doit être à distance 3 ou plus du centre");
-                }
-
-            }
 
             int row = Math.abs(m.getIngameRow() - 15);
             Integer col = letterToNumber.get(normalizedCol);
@@ -94,8 +110,15 @@ class Board {
                 throw new IllegalArgumentException("Colonne invalide: " + normalizedCol);
             }
 
-            if (isValidPosition(row, col) && board[row][col] == Mark.EMPTY) {
-                board[row][col] = mark;
+            if (isValidPosition(row, col) && board[m.getIndex()].getMark()== Mark.EMPTY) {
+                board[m.getIndex()].setMark(mark);
+                /*
+                for (int number : numbersAroundIndex){
+                    int valeurPrecedente = board[m.getIndex()].getValue(mark);
+                    board[m.getIndex() + number].setValeur(mark, valeurPrecedente + 1); //quand 2 alignes, valeur erronee
+                }
+                 */
+                addValue(m, mark);
                 moveList.add(m);
             } else {
                 throw new RuntimeException("Cette case est déjà occupée ou position invalide");
@@ -105,39 +128,51 @@ class Board {
         }
     }
 
-    // retourne 100 pour une victoire
-    // -100 pour une défaite
-    // 0 pour un match nul
-    // Ne pas changer la signature de cette méthode
-    public int evaluate(Mark mark) {
-        if (mark != Mark.EMPTY) {
-            if (checkForVictory(mark)) {
-                return 100;
-            } else if (checkForVictory(mark.enemy())) {
-                return -100;
-            } else {
-                return 0;
+    public void addValue(Move m, Mark mark){
+        int row = m.getIndex() / 15;
+        int col = m.getIndex() % 15;
+        for (int j = 0; j < 8; j++){      //pour tous les nombres autour de celui qon a place
+            int rowNumber = rowNumbersAroundIndex[j];
+            int colNumber = colNumbersAroundIndex[j];
+            if (isValidPosition(row + rowNumber, col + colNumber)){ //si la case autour est dans la grille
+
+                if (board[(row + rowNumber) * 15 + (col + colNumber)].getMark() == mark){   //si la case autour est de la mm marque que la marque placee
+                    for (int i = 2; i < 5; i++){  //pourrait avoir un case (ex: 100pts pr 4, 50pts pr 3, etc)
+                        int counter = 2;
+                        int caseActuelle = (row + i * rowNumber) * 15 + (col + i * colNumber);
+                        if (isValidPosition(row + i * rowNumber, col + i * colNumber)){
+
+                            if (board[caseActuelle].getMark() != mark){
+                                int valeurPrecedente = board[caseActuelle].getValue(mark);
+                                board[caseActuelle].setValeur(mark, valeurPrecedente + 1);
+                                if (isValidPosition((row - rowNumber),col-colNumber)){
+                                    board[(row - rowNumber) * 15 + (col - colNumber)].setValeur(mark, valeurPrecedente + 1);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                else{
+                    int valeurPrecedente = board[(row + rowNumber) * 15 + (col + colNumber)].getValue(mark);
+                    board[(row + rowNumber)* 15 + (col + colNumber)].setValeur(mark, valeurPrecedente + 1);
+                }
+
             }
-        } else {
-            throw new IllegalArgumentException("Veuillez passer Mark.X ou Mark.O à evaluate");
+
+        }
+    }
+    public void checkSequence(Square[] board){
+        //check horizontal lines
+        for (int i = 0; i < 15; i++){
+            for (int j = 0; j < 15; j++){
+
+            }
         }
     }
 
-    public PlayStatus getPlayStatus() {
-        if (checkFor5inARow(Mark.RED)) {
-            return PlayStatus.RedWins;
-        } else if (checkFor5inARow(Mark.BLACK)) {
-            return PlayStatus.BlackWins;
-        } else if (moveList.size() == 225) { // 15x15
-            return PlayStatus.Tie;
-        } else {
-            return PlayStatus.Unfinished;
-        }
-    }
 
-    private boolean checkForVictory(Mark mark) {
-        return checkFor5inARow(mark) || checkForFiveCaptures(mark);
-    }
+
 
     public boolean checkCapture(Move m, Mark mark) {
         int row = Math.abs(m.getIngameRow() - 15);
@@ -172,12 +207,12 @@ class Board {
             return 0;
         }
 
-        if (board[row + rowDir][col + colDir] == enemy &&
-            board[row + 2*rowDir][col + 2*colDir] == enemy &&
-            board[row + 3*rowDir][col + 3*colDir] == mark) {
+        if (board[15 * (row + rowDir) + (col + colDir)].getMark() == enemy &&
+            board[15 * (row + 2 * rowDir) + (col + 2 * colDir)].getMark() == enemy &&
+            board[15 * (row + 3 * rowDir) + (col + 3 * colDir)].getMark() == mark) {
             // Effectue la capture
-            board[row + rowDir][col + colDir] = Mark.EMPTY;
-            board[row + 2*rowDir][col + 2*colDir] = Mark.EMPTY;
+            board[15 * (row + rowDir) + (col + colDir)].setMark(Mark.EMPTY);
+            board[15 * (row + 2 * rowDir) + (col + 2 * colDir)].setMark(Mark.EMPTY);
             return 1;
         }
         return 0;
@@ -185,22 +220,6 @@ class Board {
 
     private boolean isValidPosition(int row, int col) {
         return row >= 0 && row < 15 && col >= 0 && col < 15;
-    }
-
-    public boolean checkForFiveCaptures(Mark mark) {
-        int captureCount = 0;
-        // Parcourir l'historique des mouvements pour compter les captures
-        for (Move move : moveList) {
-            if (board[Math.abs(move.getIngameRow() - 15)][letterToNumber.get(move.getIngameCol())] == mark) {
-                if (checkCapture(move, mark)) {
-                    captureCount++;
-                }
-                if (captureCount >= 5) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public boolean checkFor5inARow(Mark mark) {
@@ -248,7 +267,7 @@ class Board {
             int row = startRow + (i * rowDir);
             int col = startCol + (i * colDir);
             
-            if (!isValidPosition(row, col) || board[row][col] != mark) {
+            if (!isValidPosition(row, col) || board[row * 15 + col].getMark() != mark) {
                 return false;
             }
         }
@@ -257,33 +276,17 @@ class Board {
 
     public List<Move> getPossibleMoves() {
         List<Move> moves = new ArrayList<>();
-        
-        // Cas spécial : premier coup
-        if (moveList.isEmpty()) {
-            moves.add(new Move('H', 8));
-            return moves;
-        }
 
-        // Pour le second coup rouge (à distance 3+ du centre)
-        boolean isSecondRedMove = moveList.size() == 1;
-        
         // Parcourir le plateau avec des coordonnées valides (1-15)
         for (char col = 'A'; col <= 'O'; col++) {
             for (int row = 1; row <= 15; row++) {  // Commencer à 1, pas à 0
                 try {
                     Move move = new Move(col, row);
                     if (isEmptyPosition(move)) {
-                        if (isSecondRedMove) {
-                            // Vérifier la distance du centre pour le second coup rouge
-                            if (isValidSecondRedMove(move)) {
-                                moves.add(move);
-                            }
-                        } else {
-                            moves.add(move);
-                        }
+                        moves.add(move);
                     }
                 } catch (IllegalArgumentException e) {
-                    continue; // Ignorer les positions invalides
+                    continue;
                 }
             }
         }
@@ -294,7 +297,7 @@ class Board {
     private boolean isEmptyPosition(Move move) {
         int row = Math.abs(move.getIngameRow() - 15);
         int col = letterToNumber.get(move.getIngameCol());
-        return board[row][col] == Mark.EMPTY;
+        return board[row * 15 + col].getMark() == Mark.EMPTY;
     }
 
     private boolean isValidSecondRedMove(Move move) {
@@ -308,5 +311,13 @@ class Board {
         
         return row >= 1 && row <= 15 &&  // Vérifier les limites des lignes
                col >= 'A' && col <= 'O';  // Vérifier les limites des colonnes
+    }
+
+    public Square[] getBoard() {
+        return board;
+    }
+
+    public ArrayList<Move> getMoveList() {
+        return moveList;
     }
 }

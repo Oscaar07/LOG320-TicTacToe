@@ -1,7 +1,8 @@
-enum Mark {
+public enum Mark {
     RED,
     BLACK,
     EMPTY;
+
     
     public Mark enemy() {
         if (this != Mark.EMPTY) {
@@ -48,4 +49,6 @@ enum Mark {
             default: throw new IllegalStateException("État invalide");
         }
     }
+
+
 }
