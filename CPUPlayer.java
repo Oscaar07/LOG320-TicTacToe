@@ -6,11 +6,11 @@ import java.util.function.IntBinaryOperator;
 
 class CPUPlayer {
     // Constantes pour la gestion de la profondeur
-    private static final int EARLY_GAME_DEPTH = 2;
+    private static final int EARLY_GAME_DEPTH = 5;
     private static final int MID_GAME_DEPTH = 3;
     private static final int LATE_GAME_DEPTH = 5;
-    private static final int EARLY_GAME_MOVES = 10;
-    private static final int LATE_GAME_MOVES = 30;
+    private static final int EARLY_GAME_MOVES = 70;
+    private static final int LATE_GAME_MOVES = 80;
 
     // Constantes pour l'évaluation
     private static final int WIN_SCORE = 1000000;
@@ -59,30 +59,15 @@ class CPUPlayer {
         return moves;
     }
 
-    //au deuxieme passage, certaines cases sont marquees tandis qu elles ne devraient pas
     private ArrayList<Move> findBestMove(Board board) throws TimeoutException {
         ArrayList<Move> bestMoves = new ArrayList<>();
         int bestValue = Integer.MIN_VALUE;
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        List<Move> possibleMoves = orderMoves(board.getPossibleMoves(), board); //size 3 pour tester
-        /*
-        List<Move> possibleMoves = new ArrayList<>();
-        Move move1 = new Move('A', 2);
-        Move move2 = new Move('A', 15);
-        Move move3 = new Move('O', 15);
-        possibleMoves.add(move1);
-        possibleMoves.add(move2);
-        possibleMoves.add(move3);
-
-         */
-
+        List<Move> possibleMoves = orderMoves(board.getPossibleMoves(), board);
 
         for (Move move : possibleMoves) {
-
-
-
 
             Board nextBoard = new Board(board);
             nextBoard.play(move, cpuMark);
@@ -108,8 +93,22 @@ class CPUPlayer {
 
 
         if (depth == 0 || isTerminalNode(board)) {
-            int value = 0;
-            return value;
+            int bestBlackMove = -10000;
+            int bestRedMove = -10000;
+            for (int i = 0; i < 225; i++){
+                if (board.getBoard()[i].getBlackThreatValue() > bestBlackMove && board.getBoard()[i].getMark() == Mark.EMPTY){
+                    bestBlackMove = board.getBoard()[i].getBlackThreatValue();
+                }
+                if (board.getBoard()[i].getRedThreatValue() > bestRedMove && board.getBoard()[i].getMark() == Mark.EMPTY){
+                    bestRedMove = board.getBoard()[i].getRedThreatValue();
+                }
+            }
+            if (cpuMark == Mark.RED){
+                return bestRedMove - bestBlackMove;
+            }
+            else{
+                return bestBlackMove - bestRedMove;
+            }
         }
 
         List<Move> moves = orderMoves(board.getPossibleMoves(), board);
@@ -134,10 +133,7 @@ class CPUPlayer {
 
         return value;
     }
-private long getBoardHash(Board board) {
-        // TODO: Implémenter une fonction de hachage efficace pour le plateau
-        return board.hashCode();
-    }
+
 
     private void adjustDepth(Board board) {
         int moveCount = board.getMoveCount();
@@ -168,128 +164,15 @@ private long getBoardHash(Board board) {
     private int quickEvaluateMove(Move move, Board board) {
         int score = 0;
         
-        // Vérifier les victoires immédiates
-        /*if (isWinningMove(board, move)) {
-            return Integer.MAX_VALUE;
-        }*/
-
 
         score += board.getBoard()[move.getIndex()].getValue(cpuMark);
-        score -= board.getBoard()[move.getIndex()].getValue(cpuMark.enemy());
+        score += board.getBoard()[move.getIndex()].getValue(cpuMark.enemy());
         
         return score;
     }
-
-
-
-    private int evaluatePosition(Board board) {
-        int score = 0;
-        
-        // 1. Vérifier les conditions de victoire/défaite
-        if (board.checkFor5inARow(cpuMark)) return WIN_SCORE;
-        if (board.checkFor5inARow(cpuMark.enemy())) return LOSE_SCORE;
-
-        
-        return score;
-    }
-
-
-
 
 
     // Méthodes utilitaires
-    private boolean isTimeUp() {
-        return System.currentTimeMillis() - startTime > TIME_LIMIT;
-    }
-
-    private boolean isValidPosition(int row, int col) {
-        return row >= 0 && row < 15 && col >= 0 && col < 15;
-    }
-
-    private boolean isFirstMove(Board board) {
-        return board.getMoveCount() == 0;
-    }
-
-    private boolean isSecondRedMove(Board board) {
-        return board.getMoveCount() == 2 && cpuMark == Mark.RED;
-    }
-
-
-
-
-    private boolean isValidMove(Board board, Move move) {
-        try {
-            Board tempBoard = new Board(board);
-            tempBoard.play(move, cpuMark);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-
-
-    private boolean canLeadToCapture(Board board, Move move, Mark mark) {
-        return false;
-    }
-
-    private boolean checkCapturePattern(Board board, int row, int col, 
-                                      int dRow, int dCol, Mark mark, Mark enemy) {
-        // Vérifier les patterns de capture possibles
-
-        // Pattern 1: [notre_coup][ennemi][ennemi][nous]
-        if (checkPattern(board, row, col, dRow, dCol, new Mark[]{mark, enemy, enemy, mark})) {
-            return true;
-        }
-
-        // Pattern 2: [nous][ennemi][ennemi][notre_coup]
-        if (checkPattern(board, row, col, dRow, dCol, new Mark[]{mark, enemy, enemy, mark})) {
-            return true;
-        }
-
-        // Pattern 3: [ennemi][notre_coup][ennemi][nous]
-        if (checkPattern(board, row, col, dRow, dCol, new Mark[]{enemy, mark, enemy, mark})) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean checkPattern(Board board, int startRow, int startCol, 
-                               int dRow, int dCol, Mark[] pattern) {
-        // Vérifier chaque position du pattern
-        for (int i = 0; i < pattern.length; i++) {
-            int row = startRow + (i * dRow);
-            int col = startCol + (i * dCol);
-            
-            // Vérifier si la position est valide
-            if (!isValidPosition(row, col)) {
-                return false;
-            }
-            
-            // Vérifier si la marque correspond au pattern
-            Mark currentMark = board.getMark(row, col);
-            if (currentMark != pattern[i]) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-
-
-
-    private int countCaptures(Board board, Mark mark) {
-        int captures = 0;
-        for (Move move : board.getPossibleMoves()) {
-            Board tempBoard = new Board(board);
-            tempBoard.play(move, mark);
-            if (tempBoard.checkCapture(move, mark)) {
-                captures++;
-            }
-        }
-        return captures;
-    }
 
     private boolean isTerminalNode(Board board) {
         return board.checkFor5inARow(cpuMark) || 
@@ -315,9 +198,7 @@ private long getBoardHash(Board board) {
 
 
 
-    public void updateBoardScore(){
 
-    }
 
 
 

@@ -18,6 +18,16 @@ class Board {
     private final int[] rowNumbersAroundIndex = {0, -1, -1, -1, 0, 1, 1, 1};
     private final int[] colNumbersAroundIndex = {-1, -1, 0, 1, 1, 1, 0, -1};
 
+    private static final int WIN_SCORE = 1000000;
+    private static final int LOSE_SCORE = -1000000;
+    private static final int FIVE_IN_A_ROW = 100000;
+    private static final int FOUR_OPEN = 10000;
+    private static final int FOUR_CLOSED = 1000;
+    private static final int THREE_OPEN = 500;
+    private static final int THREE_CLOSED = 100;
+    private static final int TWO_OPEN = 50;
+    private static final int CAPTURE_VALUE = 2000;
+
 
 
     private Square[] board;
@@ -112,13 +122,10 @@ class Board {
 
             if (isValidPosition(row, col) && board[m.getIndex()].getMark()== Mark.EMPTY) {
                 board[m.getIndex()].setMark(mark);
-                /*
-                for (int number : numbersAroundIndex){
-                    int valeurPrecedente = board[m.getIndex()].getValue(mark);
-                    board[m.getIndex() + number].setValeur(mark, valeurPrecedente + 1); //quand 2 alignes, valeur erronee
-                }
-                 */
                 addValue(m, mark);
+                //check pour les captures serait ici
+                ArrayList<Sequence> sequenceArrayList = searchSequences();
+                updateBoard(sequenceArrayList, mark);
                 moveList.add(m);
             } else {
                 throw new RuntimeException("Cette case est déjà occupée ou position invalide");
@@ -320,4 +327,316 @@ class Board {
     public ArrayList<Move> getMoveList() {
         return moveList;
     }
+
+    public ArrayList<Sequence> searchSequences(){
+        ArrayList<Sequence> sequenceArrayList = new ArrayList<>();
+        //sequences horizontales
+        for (int i = 0; i < 15; i++){
+            int counterMarkEnSuite = 0;
+            int indexDebut = 0;
+            Mark mark = null;
+            for (int j = 0; j < 15; j++){   //changer j = 1 pour j = 0
+                if (getBoard()[i * 15 + j].getMark() == Mark.RED || getBoard()[i * 15 + j].getMark() == Mark.BLACK){
+                    if (getBoard()[i * 15 + j].getMark() == mark){
+                        counterMarkEnSuite++;
+                    }
+                    else{
+                        if (counterMarkEnSuite >= 2){
+                            Sequence seq = new Sequence((i * 15 + indexDebut), i * 15 + j - 1, mark, 1, 0, counterMarkEnSuite);
+                            sequenceArrayList.add(seq);
+                        }
+                        mark = getBoard()[i * 15 + j].getMark();
+                        counterMarkEnSuite = 1;
+                        indexDebut = j;
+                    }
+                }
+                else{
+                    if (counterMarkEnSuite >= 2){
+                        Sequence seq2 = new Sequence(i * 15 + indexDebut, i * 15 + j - 1, mark, 1, 0, counterMarkEnSuite);
+                        sequenceArrayList.add(seq2);
+                        mark = null;
+                        counterMarkEnSuite = 0;
+                    }
+                    mark = null;
+                    counterMarkEnSuite = 0;
+                }
+            }
+            if (counterMarkEnSuite >= 2){
+                Sequence seq3 = new Sequence(i * 15 + indexDebut, 14, mark, 1, 0, counterMarkEnSuite);
+                sequenceArrayList.add(seq3);
+            }
+
+        }
+
+        //sequences verticales
+        for (int i = 0; i < 15 ; i++){  //represente colonnes
+            int counterMarkEnSuite = 0;
+            int indexDebut = 0;
+            Mark mark = null;
+            int j;
+            for (j = 0; j < 15; j++){   //represente lignes
+                int indexActuel = j * 15 + i;
+                if (getBoard()[indexActuel].getMark() == Mark.RED || getBoard()[indexActuel].getMark() == Mark.BLACK){
+                    if (getBoard()[indexActuel].getMark() == mark){
+                        counterMarkEnSuite++;
+                    }
+                    else{
+                        if (counterMarkEnSuite >= 2){
+                            Sequence seq = new Sequence((j * 15 + indexDebut), indexActuel - 15, mark, 0, 1, counterMarkEnSuite);
+                            sequenceArrayList.add(seq);
+                        }
+                        mark = getBoard()[indexActuel].getMark();
+                        counterMarkEnSuite = 1;
+                        indexDebut = j;
+                    }
+                }
+                else{
+                    if (counterMarkEnSuite >= 2){
+                        Sequence seq2 = new Sequence(indexDebut * 15 + i, indexActuel - 15, mark, 0, 1, counterMarkEnSuite);
+                        sequenceArrayList.add(seq2);
+                    }
+                    mark = null;
+                    counterMarkEnSuite = 0;
+                }
+
+            }
+            if (counterMarkEnSuite >= 2){
+                Sequence seq3 = new Sequence(indexDebut * 15 + i, 14 * 15 + i, mark, 0, 1, counterMarkEnSuite);
+                sequenceArrayList.add(seq3);
+            }
+        }
+
+        //sequences diagonales haut-gauche a bas-droite (x:+1, y:+1)
+        //diagonale inferieure
+        int i = 0;  //lignes
+        int j = 0;
+        for (int m = 0; m < 12; m++){
+            int counterMarkEnSuite = 0;
+            int indexDebut = 0;
+            Mark mark = null;
+            while (isValidPosition(i, j)){
+                int indexActuel = (m * 15) + (i * 16);
+                if (getBoard()[indexActuel].getMark() == Mark.RED || getBoard()[indexActuel].getMark() == Mark.BLACK){
+                    if (getBoard()[indexActuel].getMark() == mark){
+                        counterMarkEnSuite++;
+                    }
+                    else{
+                        if (counterMarkEnSuite >= 2){
+                            Sequence seq = new Sequence((m * 15 + indexDebut * 16), indexActuel - 16, mark, 1, 1, counterMarkEnSuite);
+                            sequenceArrayList.add(seq);
+                        }
+                        mark = getBoard()[indexActuel].getMark();
+                        counterMarkEnSuite = 1;
+                        indexDebut = j;
+                    }
+                }
+                else{
+                    if (counterMarkEnSuite >= 2){
+                        Sequence seq2 = new Sequence(m * 15 + indexDebut * 16, indexActuel - 16, mark, 1, 1, counterMarkEnSuite);
+                        sequenceArrayList.add(seq2);
+                    }
+                    mark = null;
+                    counterMarkEnSuite = 0;
+                }
+
+                i++;
+                j++;
+            }
+            if (counterMarkEnSuite >= 2){
+                Sequence seq3 = new Sequence(indexDebut * 15 + i, 14 * 15 + i, mark, 1, 1,counterMarkEnSuite);
+                sequenceArrayList.add(seq3);
+            }
+        }
+
+        //diagonale haut-gauche a bas-droite
+        //diagonale superieure
+        j = 0;
+        for (int m = 1; m < 13; m++){
+            int counterMarkEnSuite = 0;
+            int indexDebut = 0;
+            Mark mark = null;
+            i = m;
+            j = 0;
+            while (isValidPosition(j, i)){
+                int indexActuel = j * 16 + m;
+                if (getBoard()[indexActuel].getMark() == Mark.RED || getBoard()[indexActuel].getMark() == Mark.BLACK){
+                    if (getBoard()[indexActuel].getMark() == mark){
+                        counterMarkEnSuite++;
+                    }
+                    else{
+                        if (counterMarkEnSuite >= 2){
+                            Sequence seq = new Sequence((indexDebut * 16 + m), indexActuel - 16, mark, 1, 1, counterMarkEnSuite);
+                            sequenceArrayList.add(seq);
+                        }
+                        mark = getBoard()[indexActuel].getMark();
+                        counterMarkEnSuite = 1;
+                        indexDebut = j;
+                    }
+                }
+                else{
+                    if (counterMarkEnSuite >= 2){
+                        Sequence seq2 = new Sequence(m + indexDebut * 16, indexActuel - 16, mark, 1, 1, counterMarkEnSuite);
+                        sequenceArrayList.add(seq2);
+                    }
+                    mark = null;
+                    counterMarkEnSuite = 0;
+                }
+
+                i++;
+                j++;
+            }
+            if (counterMarkEnSuite >= 2){
+                Sequence seq3 = new Sequence(indexDebut * 16 + m, indexDebut * 16 + 14, mark, 1, 1,counterMarkEnSuite);
+                sequenceArrayList.add(seq3);
+            }
+        }
+
+        //diagonale haut-droite a bas-gauche
+        //diagonale inferieure
+        i = 1;  //runningLine
+        //m: starting line
+        j = 0;
+        for (int m = 0; m < 12; m++){
+            int counterMarkEnSuite = 0;
+            int indexDebut = 0;
+            Mark mark = null;
+            i = 1;
+            j = m;
+            while (isValidPosition(j, j)){
+                int indexActuel = (m * 15) + (i * 14);  //m: lignes i: colonnes en partant de la droite
+                if (getBoard()[indexActuel].getMark() == Mark.RED || getBoard()[indexActuel].getMark() == Mark.BLACK){
+                    if (getBoard()[indexActuel].getMark() == mark){
+                        counterMarkEnSuite++;
+                    }
+                    else{
+                        if (counterMarkEnSuite >= 2){
+                            Sequence seq = new Sequence((m * 15 + indexDebut * 14), indexActuel - 14, mark, -1, 1, counterMarkEnSuite);
+                            sequenceArrayList.add(seq);
+                        }
+                        mark = getBoard()[indexActuel].getMark();
+                        counterMarkEnSuite = 1;
+                        indexDebut = i;
+                    }
+                }
+                else{
+                    if (counterMarkEnSuite >= 2){
+                        Sequence seq2 = new Sequence(m * 15 + indexDebut * 14, indexActuel - 14, mark, -1, 1,counterMarkEnSuite);
+                        sequenceArrayList.add(seq2);
+                    }
+                    mark = null;
+                    counterMarkEnSuite = 0;
+                }
+
+                i++;
+                j++;
+            }
+            if (counterMarkEnSuite >= 2){
+                Sequence seq3 = new Sequence(m * 15 + indexDebut * 14, 14 * 15 + m, mark, -1, 1, counterMarkEnSuite);
+                sequenceArrayList.add(seq3);
+            }
+        }
+
+        //diagonale haut-droite a bas-gauche
+        //diagonale superieure
+        j = 0;
+        for (int m = 2; m < 14; m++){
+            int counterMarkEnSuite = 0;
+            int indexDebut = 0;
+            Mark mark = null;
+            i = m;  //colonnes
+            j = 0;  //lignes
+            while (isValidPosition(j, i)){
+                int indexActuel = j * 14 + i;
+                if (getBoard()[indexActuel].getMark() == Mark.RED || getBoard()[indexActuel].getMark() == Mark.BLACK){
+                    if (getBoard()[indexActuel].getMark() == mark){
+                        counterMarkEnSuite++;
+                    }
+                    else{
+                        if (counterMarkEnSuite >= 2){
+                            Sequence seq = new Sequence((indexDebut * 14 + i), indexActuel - 14, mark, -1, 1, counterMarkEnSuite);
+                            sequenceArrayList.add(seq);
+                        }
+                        mark = getBoard()[indexActuel].getMark();
+                        counterMarkEnSuite = 1;
+                        indexDebut = j;
+                    }
+                }
+                else{
+                    if (counterMarkEnSuite >= 2){
+                        Sequence seq2 = new Sequence((indexDebut * 14 + i), indexActuel - 14, mark, -1, 1, counterMarkEnSuite);
+                        sequenceArrayList.add(seq2);
+                    }
+                    mark = null;
+                    counterMarkEnSuite = 0;
+                }
+
+                i--;
+                j++;
+            }
+            if (counterMarkEnSuite >= 2){
+                Sequence seq3 = new Sequence(indexDebut * 14 + i, i + 14 * i, mark, 1, 1, counterMarkEnSuite);
+                sequenceArrayList.add(seq3);
+            }
+        }
+
+
+        return sequenceArrayList;
+    }
+
+    public void updateBoard(ArrayList<Sequence> sequenceArrayList, Mark mark){
+        for (Sequence seq : sequenceArrayList){
+            String direction = seq.getSequenceDirection();
+            int indexCaseAvant = -1;
+            int indexCaseApres = -1;
+            switch (direction){
+                case "verticale":
+                    indexCaseAvant = seq.getIndexDebut() - 15;       //peut etre hors de la grille
+                    indexCaseApres = seq.getIndexFin() + 15;
+                    break;
+                case "horizontale":
+                    indexCaseAvant = seq.getIndexDebut() - 1;       //peut etre hors grille
+                    indexCaseApres = seq.getIndexFin() + 1;
+                    break;
+                case "diagonale sud-est":
+                    indexCaseAvant = seq.getIndexDebut() - 16;
+                    indexCaseApres = seq.getIndexFin() + 16;
+                    break;
+                case "diagonale sud-ouest":
+                    indexCaseAvant = seq.getIndexDebut() - 14;
+                    indexCaseApres = seq.getIndexFin() + 14;
+                    break;
+            }
+            int length = seq.getLength();
+            int points = 0;
+            switch(length){
+                case 2:
+                    points = 5;
+                    break;
+                case 3:
+                    if (indexCaseAvant >= 0 && indexCaseAvant < 225 && indexCaseApres >= 0 && indexCaseApres < 225){
+                        if (getBoard()[indexCaseAvant].getMark() == mark || getBoard()[indexCaseApres].getMark() == mark){
+                            points = 5;
+                        }else points = 50;
+                    }
+                    break;
+                case 4:
+                    if (indexCaseAvant >= 0 && indexCaseAvant < 225 && indexCaseApres >= 0 && indexCaseApres < 225){
+                        if (getBoard()[indexCaseAvant].getMark() == mark || getBoard()[indexCaseApres].getMark() == mark){
+                            points = 50;
+                        }else points = 100;
+                    }
+                    break;
+                case 5:
+                    points = 10000;
+            }
+            if (indexCaseAvant >= 0 && indexCaseAvant < 225 && seq.getMark() == mark){
+                getBoard()[indexCaseAvant].setValeur(mark, points);
+            }
+            if (indexCaseApres >= 0 && indexCaseApres < 225 && seq.getMark() == mark){
+                getBoard()[indexCaseApres].setValeur(mark, points);
+            }
+        }
+    }
+
+
 }

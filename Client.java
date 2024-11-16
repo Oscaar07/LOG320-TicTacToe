@@ -274,13 +274,13 @@ class Client {
             for (int j = 0; j < 15; j++) {
                 int index = i * 15 + j;
                 if (gameBoard.getBoard()[index].getMark() == Mark.RED){
-                    System.out.print(RED + " *" + RESET);
+                    System.out.print(RED + "  *" + RESET);
                 } else if (gameBoard.getBoard()[index].getMark() == Mark.BLACK) {
-                    System.out.print(BLACK + " *" + RESET);
+                    System.out.print(BLACK + "  *" + RESET);
                 }
                 else{
                     int valeurMenacesRouges = gameBoard.getBoard()[index].getValue(Mark.RED);
-                    System.out.printf("%2d", (valeurMenacesRouges));
+                    System.out.printf("%3d", (valeurMenacesRouges));
                 }
             }
             System.out.printf(" %2d%n", (15 - i));
@@ -294,13 +294,13 @@ class Client {
             for (int j = 0; j < 15; j++) {
                 int index = i * 15 + j;
                 if (gameBoard.getBoard()[index].getMark() == Mark.RED){
-                    System.out.print(RED + " *" + RESET);
+                    System.out.print(RED + "  *" + RESET);
                 } else if (gameBoard.getBoard()[index].getMark() == Mark.BLACK) {
-                    System.out.print(BLACK + " *" + RESET);
+                    System.out.print(BLACK + "  *" + RESET);
                 }
                 else{
                     int valeurMenacesNoires = gameBoard.getBoard()[index].getValue(Mark.BLACK);
-                    System.out.printf("%2d", (valeurMenacesNoires));
+                    System.out.printf("%3d", (valeurMenacesNoires));
                 }
             }
             System.out.printf(" %2d%n", (15 - i));
