@@ -20,13 +20,16 @@ class Board {
 
     private static final int WIN_SCORE = 1000000;
     private static final int LOSE_SCORE = -1000000;
-    private static final int FIVE_IN_A_ROW = 100000;
-    private static final int FOUR_OPEN = 10000;
-    private static final int FOUR_CLOSED = 1000;
-    private static final int THREE_OPEN = 500;
-    private static final int THREE_CLOSED = 100;
-    private static final int TWO_OPEN = 50;
-    private static final int CAPTURE_VALUE = 2000;
+    private static final int FIVE_IN_A_ROW = 1000;
+    private static final int FOUR_OPEN = 200;
+    private static final int FOUR_CLOSED = 50;
+    private static final int THREE_OPEN = 50;
+    private static final int THREE_CLOSED = 5;
+    private static final int TWO = 5;
+    private static final int CAPTURE_VALUE = 150;
+
+    private int nbCapturesRouge = 0;
+    private int nbCapturesNoir = 0;
 
 
 
@@ -610,24 +613,32 @@ class Board {
             int points = 0;
             switch(length){
                 case 2:
-                    points = 5;
+
+                    if (indexCaseAvant >= 0 && indexCaseAvant < 225 && indexCaseApres >= 0 && indexCaseApres < 225){
+                        if (getBoard()[indexCaseAvant].getMark() == mark.enemy() && getBoard()[indexCaseApres].getMark() == Mark.EMPTY){
+                            getBoard()[indexCaseApres].setValeur(mark.enemy(), CAPTURE_VALUE);
+                        } else if (getBoard()[indexCaseAvant].getMark() == Mark.EMPTY && getBoard()[indexCaseApres].getMark() == mark.enemy()) {
+                            getBoard()[indexCaseAvant].setValeur(mark.enemy(), CAPTURE_VALUE);
+                        }
+                    }
+                    points = TWO;
                     break;
                 case 3:
                     if (indexCaseAvant >= 0 && indexCaseAvant < 225 && indexCaseApres >= 0 && indexCaseApres < 225){
-                        if (getBoard()[indexCaseAvant].getMark() == mark || getBoard()[indexCaseApres].getMark() == mark){
-                            points = 5;
-                        }else points = 50;
+                        if (getBoard()[indexCaseAvant].getMark() == mark.enemy() || getBoard()[indexCaseApres].getMark() == mark.enemy()){
+                            points = THREE_CLOSED;
+                        }else points = THREE_OPEN;
                     }
                     break;
                 case 4:
                     if (indexCaseAvant >= 0 && indexCaseAvant < 225 && indexCaseApres >= 0 && indexCaseApres < 225){
-                        if (getBoard()[indexCaseAvant].getMark() == mark || getBoard()[indexCaseApres].getMark() == mark){
-                            points = 50;
-                        }else points = 100;
+                        if (getBoard()[indexCaseAvant].getMark() == mark.enemy() || getBoard()[indexCaseApres].getMark() == mark.enemy()){
+                            points = FOUR_CLOSED;
+                        }else points = FOUR_OPEN;
                     }
                     break;
                 case 5:
-                    points = 10000;
+                    points = FIVE_IN_A_ROW;
             }
             if (indexCaseAvant >= 0 && indexCaseAvant < 225 && seq.getMark() == mark){
                 getBoard()[indexCaseAvant].setValeur(mark, points);
@@ -637,6 +648,8 @@ class Board {
             }
         }
     }
+
+
 
 
 }

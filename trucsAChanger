@@ -1,4 +1,4 @@
 1. Fonction d'evaluation dans le noeud terminal de CPUPlayer
 2. Changer les points pour l'ennemi quand une piece est jouee pres d'une de l'ennemi
 3. Gerer les captures
-4.
+4. Points pr lignes qui ont des empty entre

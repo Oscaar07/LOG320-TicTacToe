@@ -6,7 +6,7 @@ import java.util.function.IntBinaryOperator;
 
 class CPUPlayer {
     // Constantes pour la gestion de la profondeur
-    private static final int EARLY_GAME_DEPTH = 5;
+    private static final int EARLY_GAME_DEPTH = 2;
     private static final int MID_GAME_DEPTH = 3;
     private static final int LATE_GAME_DEPTH = 5;
     private static final int EARLY_GAME_MOVES = 70;
