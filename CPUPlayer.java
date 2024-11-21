@@ -6,7 +6,7 @@ import java.util.function.IntBinaryOperator;
 
 class CPUPlayer {
     // Constantes pour la gestion de la profondeur
-    private static final int EARLY_GAME_DEPTH = 2;
+    private static final int EARLY_GAME_DEPTH = 4;
     private static final int MID_GAME_DEPTH = 3;
     private static final int LATE_GAME_DEPTH = 5;
     private static final int EARLY_GAME_MOVES = 70;
@@ -51,9 +51,7 @@ class CPUPlayer {
             moves = findBestMove(board);
         } catch (TimeoutException e) {
             // Si temps dépassé, retourner le meilleur coup trouvé jusqu'ici
-            if (moves.isEmpty()) {
-                System.out.print("aucun move trouve");
-            }
+            System.out.print("aucun move trouve");
         }
 
         return moves;
@@ -103,12 +101,17 @@ class CPUPlayer {
                     bestRedMove = board.getBoard()[i].getRedThreatValue();
                 }
             }
+            int moveEval;
+            int captureEval;
             if (cpuMark == Mark.RED){
-                return bestRedMove - bestBlackMove;
+                moveEval = (bestRedMove - bestBlackMove);
+                captureEval = (board.getEvalCapturesRouge() - board.getEvalCapturesNoir());
             }
             else{
-                return bestBlackMove - bestRedMove;
+                moveEval = (bestBlackMove - bestRedMove);
+                captureEval = (board.getEvalCapturesNoir() - board.getEvalCapturesRouge());
             }
+            return moveEval + captureEval;
         }
 
         List<Move> moves = orderMoves(board.getPossibleMoves(), board);

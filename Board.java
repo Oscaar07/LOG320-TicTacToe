@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,18 +14,27 @@ class Board {
 
     private ArrayList<Move> moveList;
 
+    private final int[] numbersAroundIndex = {-1, -16, -15, -14, 1, 16, 15, 14};
     private final int[] rowNumbersAroundIndex = {0, -1, -1, -1, 0, 1, 1, 1};
     private final int[] colNumbersAroundIndex = {-1, -1, 0, 1, 1, 1, 0, -1};
 
     private static final int WIN_SCORE = 1000000;
     private static final int LOSE_SCORE = -1000000;
-    private static final int FIVE_IN_A_ROW = 1000;
-    private static final int FOUR_OPEN = 200;
+    private static final int FIVE_IN_A_ROW = 1000000;
+    private static final int FOUR_OPEN = 9000;
     private static final int FOUR_CLOSED = 50;
     private static final int THREE_OPEN = 50;
     private static final int THREE_CLOSED = 5;
     private static final int TWO = 5;
-    private static final int CAPTURE_VALUE = 150;
+    private static final int CAPTURE_VALUE = 1000;
+
+    private static final int ONE_CAPTURE = 1000;
+    private static final int TWO_CAPTURE = 2000;
+    private static final int THREE_CAPTURE = 4000;
+    private static final int FOUR_CAPTURE = 8000;
+    private static final int FIVE_CAPTURE = 1000000;
+
+
 
     private int nbCapturesRouge = 0;
     private int nbCapturesNoir = 0;
@@ -126,7 +134,8 @@ class Board {
             if (isValidPosition(row, col) && board[m.getIndex()].getMark()== Mark.EMPTY) {
                 board[m.getIndex()].setMark(mark);
                 addValue(m, mark);
-                //check pour les captures serait ici
+                ArrayList<Integer> directionArr = checkCaptureDirection(mark, m);    //check pour les captures serait ici
+                removeCapturedPieces(directionArr, m.getIndex(), mark);
                 ArrayList<Sequence> sequenceArrayList = searchSequences();
                 updateBoard(sequenceArrayList, mark);
                 moveList.add(m);
@@ -146,87 +155,30 @@ class Board {
             int colNumber = colNumbersAroundIndex[j];
             if (isValidPosition(row + rowNumber, col + colNumber)){ //si la case autour est dans la grille
 
-                if (board[(row + rowNumber) * 15 + (col + colNumber)].getMark() == mark){   //si la case autour est de la mm marque que la marque placee
-                    for (int i = 2; i < 5; i++){  //pourrait avoir un case (ex: 100pts pr 4, 50pts pr 3, etc)
-                        int counter = 2;
-                        int caseActuelle = (row + i * rowNumber) * 15 + (col + i * colNumber);
-                        if (isValidPosition(row + i * rowNumber, col + i * colNumber)){
-
-                            if (board[caseActuelle].getMark() != mark){
-                                int valeurPrecedente = board[caseActuelle].getValue(mark);
-                                board[caseActuelle].setValeur(mark, valeurPrecedente + 1);
-                                if (isValidPosition((row - rowNumber),col-colNumber)){
-                                    board[(row - rowNumber) * 15 + (col - colNumber)].setValeur(mark, valeurPrecedente + 1);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-                else{
-                    int valeurPrecedente = board[(row + rowNumber) * 15 + (col + colNumber)].getValue(mark);
-                    board[(row + rowNumber)* 15 + (col + colNumber)].setValeur(mark, valeurPrecedente + 1);
-                }
+                int valeurPrecedente = board[(row + rowNumber) * 15 + (col + colNumber)].getValue(mark);
+                board[(row + rowNumber)* 15 + (col + colNumber)].setValeur(mark, valeurPrecedente + 1);
 
             }
 
         }
     }
-    public void checkSequence(Square[] board){
-        //check horizontal lines
-        for (int i = 0; i < 15; i++){
-            for (int j = 0; j < 15; j++){
+
+    public void removeValue(int index, Mark mark){
+        int row = index / 15;
+        int col = index % 15;
+        for (int j = 0; j < 8; j++){      //pour tous les nombres autour de celui qon a place
+            int rowNumber = rowNumbersAroundIndex[j];
+            int colNumber = colNumbersAroundIndex[j];
+            if (isValidPosition(row + rowNumber, col + colNumber)){ //si la case autour est dans la grille
+
+                int valeurPrecedente = board[(row + rowNumber) * 15 + (col + colNumber)].getValue(mark);
+                board[(row + rowNumber)* 15 + (col + colNumber)].setValeur(mark, valeurPrecedente - 1);
 
             }
+
         }
     }
 
-
-
-
-    public boolean checkCapture(Move m, Mark mark) {
-        int row = Math.abs(m.getIngameRow() - 15);
-        int col = letterToNumber.get(m.getIngameCol());
-        Mark enemy = (mark == Mark.RED) ? Mark.BLACK : Mark.RED;
-        int captures = 0;
-
-        // Vérification horizontale
-        captures += checkCaptureDirection(row, col, 0, 1, mark, enemy);
-        captures += checkCaptureDirection(row, col, 0, -1, mark, enemy);
-        
-        // Vérification verticale
-        captures += checkCaptureDirection(row, col, 1, 0, mark, enemy);
-        captures += checkCaptureDirection(row, col, -1, 0, mark, enemy);
-        
-        // Vérification diagonale /
-        captures += checkCaptureDirection(row, col, 1, 1, mark, enemy);
-        captures += checkCaptureDirection(row, col, -1, -1, mark, enemy);
-        
-        // Vérification diagonale \
-        captures += checkCaptureDirection(row, col, 1, -1, mark, enemy);
-        captures += checkCaptureDirection(row, col, -1, 1, mark, enemy);
-
-        return captures > 0;
-    }
-
-    private int checkCaptureDirection(int row, int col, int rowDir, int colDir, Mark mark, Mark enemy) {
-        // Vérifie si on peut capturer dans une direction donnée
-        if (!isValidPosition(row + rowDir, col + colDir) || 
-            !isValidPosition(row + 2*rowDir, col + 2*colDir) || 
-            !isValidPosition(row + 3*rowDir, col + 3*colDir)) {
-            return 0;
-        }
-
-        if (board[15 * (row + rowDir) + (col + colDir)].getMark() == enemy &&
-            board[15 * (row + 2 * rowDir) + (col + 2 * colDir)].getMark() == enemy &&
-            board[15 * (row + 3 * rowDir) + (col + 3 * colDir)].getMark() == mark) {
-            // Effectue la capture
-            board[15 * (row + rowDir) + (col + colDir)].setMark(Mark.EMPTY);
-            board[15 * (row + 2 * rowDir) + (col + 2 * colDir)].setMark(Mark.EMPTY);
-            return 1;
-        }
-        return 0;
-    }
 
     private boolean isValidPosition(int row, int col) {
         return row >= 0 && row < 15 && col >= 0 && col < 15;
@@ -310,18 +262,7 @@ class Board {
         return board[row * 15 + col].getMark() == Mark.EMPTY;
     }
 
-    private boolean isValidSecondRedMove(Move move) {
-        return move.getIngameRow() < 6 || move.getIngameRow() > 10 || move.getIngameCol() < 'F' || move.getIngameCol() > 'J';
-    }
 
-    // Méthode utilitaire pour vérifier si un coup est dans les limites
-    public boolean isValidPosition(Move move) {
-        int row = move.getIngameRow();
-        char col = move.getIngameCol();
-        
-        return row >= 1 && row <= 15 &&  // Vérifier les limites des lignes
-               col >= 'A' && col <= 'O';  // Vérifier les limites des colonnes
-    }
 
     public Square[] getBoard() {
         return board;
@@ -649,7 +590,66 @@ class Board {
         }
     }
 
+    private ArrayList<Integer> checkCaptureDirection(Mark mark, Move move) {
+        ArrayList<Integer> directionsCapture = new ArrayList<>();
+
+        int startingIndex = move.getIndex();
+
+        for (int firstNext : numbersAroundIndex) {
+            int secondNext = firstNext * 2;
+            int thirdNext = firstNext * 3;
+            if (isValidIndex(startingIndex + firstNext) && isValidIndex(startingIndex + secondNext) && isValidIndex(startingIndex + thirdNext)) {
+                if (getBoard()[startingIndex + firstNext].getMark() == mark.enemy() && getBoard()[startingIndex + secondNext].getMark() == mark.enemy()) {
+                    if (getBoard()[startingIndex + thirdNext].getMark() == mark) {
+                        directionsCapture.add(firstNext);
+                    }
+                }
+            }
+        }
+        return directionsCapture;
+    }
+
+    public void removeCapturedPieces(ArrayList<Integer> captureDirections, int startingIndex, Mark mark){
+        for (int direction : captureDirections){
+            getBoard()[startingIndex + direction].setMark(Mark.EMPTY);
+            removeValue(startingIndex + direction, mark.enemy());
+
+            getBoard()[startingIndex + 2 * direction].setMark(Mark.EMPTY);
+            removeValue(startingIndex + 2 * direction, mark.enemy());
+
+            if (mark == Mark.RED){
+                nbCapturesRouge++;
+            }
+            else{
+                nbCapturesNoir++;
+            }
+        }
+    }
 
 
+    private boolean isValidIndex(int index){
+        return index >= 0 && index < 225;
+    }
 
+    public int getEvalCapturesNoir() {
+        return switch (nbCapturesNoir) {
+            case 1 -> ONE_CAPTURE;
+            case 2 -> TWO_CAPTURE;
+            case 3 -> THREE_CAPTURE;
+            case 4 -> FOUR_CAPTURE;
+            case 5 -> FIVE_CAPTURE;
+            default -> 0;
+        };
+    }
+
+    public int getEvalCapturesRouge() {
+        return switch (nbCapturesRouge) {
+            case 1 -> ONE_CAPTURE;
+            case 2 -> TWO_CAPTURE;
+            case 3 -> THREE_CAPTURE;
+            case 4 -> FOUR_CAPTURE;
+            case 5 -> FIVE_CAPTURE;
+            default -> 0;
+        };
+    }
 }
