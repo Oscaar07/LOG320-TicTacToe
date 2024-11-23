@@ -6,26 +6,13 @@ import java.util.function.IntBinaryOperator;
 
 class CPUPlayer {
     // Constantes pour la gestion de la profondeur
-    private static final int EARLY_GAME_DEPTH = 2;
+    private static final int EARLY_GAME_DEPTH = 4;
     private static final int MID_GAME_DEPTH = 3;
     private static final int LATE_GAME_DEPTH = 5;
     private static final int EARLY_GAME_MOVES = 70;
     private static final int LATE_GAME_MOVES = 80;
 
-    // Constantes pour l'évaluation
-    private static final int WIN_SCORE = 1000000;
-    private static final int LOSE_SCORE = -1000000;
-    private static final int FIVE_IN_A_ROW = 100000;
-    private static final int FOUR_OPEN = 10000;
-    private static final int FOUR_CLOSED = 1000;
-    private static final int THREE_OPEN = 500;
-    private static final int THREE_CLOSED = 100;
-    private static final int TWO_OPEN = 50;
-    private static final int CAPTURE_VALUE = 2000;
-    private static final int CENTER_VALUE = 30;
 
-    private int nbCapturesRouge = 0;
-    private int nbCapturesNoir = 0;
 
     // Gestion du temps
     private static final long TIME_LIMIT = 4800; // 4.8 secondes

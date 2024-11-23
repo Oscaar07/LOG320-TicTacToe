@@ -22,8 +22,8 @@ class Board {
     private static final int LOSE_SCORE = -1000000;
     private static final int FIVE_IN_A_ROW = 1000000;
     private static final int FOUR_OPEN = 9000;
-    private static final int FOUR_CLOSED = 50;
-    private static final int THREE_OPEN = 50;
+    private static final int FOUR_CLOSED = 2000;
+    private static final int THREE_OPEN = 1050;
     private static final int THREE_CLOSED = 5;
     private static final int TWO = 5;
     private static final int CAPTURE_VALUE = 1000;
@@ -584,11 +584,21 @@ class Board {
                 case 5:
                     points = FIVE_IN_A_ROW;
             }
-            if (indexCaseAvant >= 0 && indexCaseAvant < 225 && seq.getMark() == mark){
-                getBoard()[indexCaseAvant].setValeur(mark, points);
+            if (indexCaseAvant >= 0 && indexCaseAvant < 225 ){
+                if (seq.getMark() == mark){
+                    getBoard()[indexCaseAvant].setValeur(mark, points);
+                }
+                else{
+                    getBoard()[indexCaseAvant].setValeur(mark.enemy(), points);
+                }
             }
-            if (indexCaseApres >= 0 && indexCaseApres < 225 && seq.getMark() == mark){
-                getBoard()[indexCaseApres].setValeur(mark, points);
+            if (indexCaseApres >= 0 && indexCaseApres < 225){
+                if (seq.getMark() == mark){
+                    getBoard()[indexCaseApres].setValeur(mark, points);
+                }
+                else {
+                    getBoard()[indexCaseApres].setValeur(mark.enemy(), points);
+                }
             }
         }
     }
