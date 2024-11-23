@@ -103,6 +103,9 @@ class Board {
             numberToLetter.put(i, letter);
         }
 
+        nbCapturesRouge = existing.getNbCapturesRouge();
+        nbCapturesNoir = existing.getNbCapturesNoir();
+
 
     }
 
@@ -651,5 +654,13 @@ class Board {
             case 5 -> FIVE_CAPTURE;
             default -> 0;
         };
+    }
+
+    public int getNbCapturesRouge() {
+        return nbCapturesRouge;
+    }
+
+    public int getNbCapturesNoir() {
+        return nbCapturesNoir;
     }
 }

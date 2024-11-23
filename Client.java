@@ -11,11 +11,6 @@ class Client {
     private static final boolean DEBUG_MODE = true;
     private static Set<String> invalidMoves = new HashSet<>();
     private static Set<String> occupiedPositions = new HashSet<>();
-    private static final String[] SAFE_MOVES = {
-        "D8", "L8", "H4", "H12", "D12", "L12",
-        "E12", "K12", "E4", "K4", "C8", "M8"
-    };
-    private static int safeMovesIndex = 0;
     public static final String RESET = "\033[0m"; // Reset color
     public static final String RED = "\033[0;31m";
     public static final String BLACK = "\033[0;30m";
