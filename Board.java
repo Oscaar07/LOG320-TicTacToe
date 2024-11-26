@@ -493,7 +493,7 @@ class Board {
             i = m;  //colonnes
             j = 0;  //lignes
             while (isValidPosition(j, i)){
-                int indexActuel = j * 14 + i;
+                int indexActuel = j * 15 + i;
                 if (getBoard()[indexActuel].getMark() == Mark.RED || getBoard()[indexActuel].getMark() == Mark.BLACK){
                     if (getBoard()[indexActuel].getMark() == mark){
                         counterMarkEnSuite++;
