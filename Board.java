@@ -26,13 +26,13 @@ class Board {
     private static final int THREE_OPEN = 1050;
     private static final int THREE_CLOSED = 5;
     private static final int TWO = 5;
-    private static final int CAPTURE_VALUE = 1000;
+    private static final int CAPTURE_VALUE = 10;      //1000
 
-    private static final int ONE_CAPTURE = 1000;
-    private static final int TWO_CAPTURE = 2000;
-    private static final int THREE_CAPTURE = 4000;
-    private static final int FOUR_CAPTURE = 8000;
-    private static final int FIVE_CAPTURE = 1000000;
+    private static final int ONE_CAPTURE = 10;        //1000
+    private static final int TWO_CAPTURE = 10;        //2000
+    private static final int THREE_CAPTURE = 10;      //4000
+    private static final int FOUR_CAPTURE = 8000;       //8000
+    private static final int FIVE_CAPTURE = 1000000;    //1000000
 
 
 

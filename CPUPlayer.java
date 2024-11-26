@@ -7,10 +7,10 @@ import java.util.function.IntBinaryOperator;
 class CPUPlayer {
     // Constantes pour la gestion de la profondeur
     private static final int EARLY_GAME_DEPTH = 4;
-    private static final int MID_GAME_DEPTH = 3;
-    private static final int LATE_GAME_DEPTH = 5;
-    private static final int EARLY_GAME_MOVES = 70;
-    private static final int LATE_GAME_MOVES = 80;
+    private static final int MID_GAME_DEPTH = 6;
+    private static final int LATE_GAME_DEPTH = 8;
+    private static final int EARLY_GAME_MOVES = 60;
+    private static final int LATE_GAME_MOVES = 20;
 
 
 
@@ -75,6 +75,15 @@ class CPUPlayer {
 
     private int alphaBeta(Board board, int depth, int alpha, int beta, boolean maximizing) 
             throws TimeoutException {
+
+        //il faut regarder pr une win avant tout
+        if (board.checkFor5inARow(Mark.RED) || board.getEvalCapturesRouge() == 1000000){
+            return Integer.MAX_VALUE;
+        }
+        else if (board.checkFor5inARow(Mark.BLACK) || board.getEvalCapturesNoir() == 1000000){
+            return Integer.MIN_VALUE;
+        }
+
 
 
         if (depth == 0 || isTerminalNode(board)) {
