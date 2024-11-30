@@ -58,7 +58,7 @@ class CPUPlayer {
             nextBoard.play(move, cpuMark);
             
             int value = alphaBeta(nextBoard, currentMaxDepth - 1, alpha, beta, false);
-            
+
             if (value > bestValue) {
                 bestValue = value;
                 bestMoves.clear();
@@ -66,8 +66,9 @@ class CPUPlayer {
             } else if (value == bestValue) {
                 bestMoves.add(move);
             }
-            
+
             alpha = Math.max(alpha, value);
+
         }
 
         return bestMoves;
@@ -78,10 +79,11 @@ class CPUPlayer {
 
         //il faut regarder pr une win avant tout
         if (board.checkFor5inARow(Mark.RED) || board.getEvalCapturesRouge() == 1000000){
-            return Integer.MAX_VALUE;
+            return 10000000;
         }
         else if (board.checkFor5inARow(Mark.BLACK) || board.getEvalCapturesNoir() == 1000000){
-            return Integer.MIN_VALUE;
+            //return Integer.MIN_VALUE;
+            return -10000000;
         }
 
 
@@ -99,6 +101,7 @@ class CPUPlayer {
             }
             int moveEval;
             int captureEval;
+
             if (cpuMark == Mark.RED){
                 moveEval = (bestRedMove - bestBlackMove);
                 captureEval = (board.getEvalCapturesRouge() - board.getEvalCapturesNoir());
@@ -107,6 +110,7 @@ class CPUPlayer {
                 moveEval = (bestBlackMove - bestRedMove);
                 captureEval = (board.getEvalCapturesNoir() - board.getEvalCapturesRouge());
             }
+
             return moveEval + captureEval;
         }
 

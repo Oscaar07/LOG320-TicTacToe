@@ -52,7 +52,15 @@ public class Square {
         gridCol = index % 15;
         ingameRow = Math.abs(gridRow - 15);
         ingameCol = (char)('A' + gridCol);
-        mark = Mark.EMPTY;
+        redThreatValue = 0;
+        blackThreatValue = 0;
+    }
+
+    public Square(int row, int col){
+        this.gridRow = row;
+        this.gridCol = col;
+        ingameRow = Math.abs(gridRow - 15);
+        ingameCol = (char)('A' + gridCol);
         redThreatValue = 0;
         blackThreatValue = 0;
     }
@@ -71,6 +79,16 @@ public class Square {
         }
         else this.blackThreatValue = value;
         activeSquare = true;
+    }
+    public void addValeur(Mark mark, int value){
+        if (mark == Mark.RED){
+            int precedent = this.redThreatValue;
+            this.redThreatValue = precedent + value;
+        }
+        else{
+            int precedent = this.blackThreatValue;
+            this.blackThreatValue = precedent + value;
+        }
     }
 
     public Mark getMark() {

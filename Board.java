@@ -26,7 +26,8 @@ class Board {
     private static final int THREE_OPEN = 1050;
     private static final int THREE_CLOSED = 5;
     private static final int TWO = 5;
-    private static final int CAPTURE_VALUE = 10;      //1000
+    private static final int TWO_CLOSED = 2;
+    private static final int CAPTURE_VALUE = 5;      //1000
 
     private static final int ONE_CAPTURE = 10;        //1000
     private static final int TWO_CAPTURE = 10;        //2000
@@ -34,23 +35,28 @@ class Board {
     private static final int FOUR_CAPTURE = 8000;       //8000
     private static final int FIVE_CAPTURE = 1000000;    //1000000
 
+    private static final int VALEUR_ENLIGNE = 2;
 
+    private static final int NBLIGNES = 15;
+    private static final int NBCOLONNES = 15;
 
     private int nbCapturesRouge = 0;
     private int nbCapturesNoir = 0;
 
 
-
-    private Square[] board;
+    private Square[][] board;
 
     // Ne pas changer la signature de cette méthode
     public Board() {
-        board = new Square[225];
+        board = new Square[NBLIGNES][NBCOLONNES];
         letterToNumber = new HashMap<>();
         numberToLetter = new HashMap<>();
         
-        for (int i = 0; i < 225; i++) {
-            board[i] = new Square(i);
+
+        for (int i = 0; i < NBLIGNES; i++){
+            for (int j = 0; j < NBCOLONNES; j++){
+                board[i][j] = new Square(i, j);
+            }
         }
 
         for (int i = 0; i < 15; i++) {
@@ -65,7 +71,8 @@ class Board {
     }
 
     public Board(Board existing) {
-        board = new Square[225];
+
+        board = new Square[NBLIGNES][NBCOLONNES];
 
         for (int i = 0; i < 225; i++) {
             if (existing.getBoard()[i].getMark() == Mark.RED){
@@ -83,6 +90,16 @@ class Board {
             board[i].setIndex(i);
 
         }
+
+        for (int i = 0; i < NBLIGNES; i++){
+            for (int j = 0; j < NBCOLONNES; j++){
+                if (existing.)
+            }
+        }
+
+
+
+
         moveList = new ArrayList<>();
         for (Move move : existing.getMoveList()){
             int row = move.getIngameRow();
@@ -329,7 +346,7 @@ class Board {
                     }
                     else{
                         if (counterMarkEnSuite >= 2){
-                            Sequence seq = new Sequence((j * 15 + indexDebut), indexActuel - 15, mark, 0, 1, counterMarkEnSuite);
+                            Sequence seq = new Sequence((indexDebut * 15 + i), indexActuel - 15, mark, 0, 1, counterMarkEnSuite);   //erreur ?
                             sequenceArrayList.add(seq);
                         }
                         mark = getBoard()[indexActuel].getMark();
@@ -493,7 +510,7 @@ class Board {
             i = m;  //colonnes
             j = 0;  //lignes
             while (isValidPosition(j, i)){
-                int indexActuel = j * 14 + i;
+                int indexActuel = j * 15 + i;
                 if (getBoard()[indexActuel].getMark() == Mark.RED || getBoard()[indexActuel].getMark() == Mark.BLACK){
                     if (getBoard()[indexActuel].getMark() == mark){
                         counterMarkEnSuite++;
@@ -530,51 +547,129 @@ class Board {
         return sequenceArrayList;
     }
 
+    public void update2ndMoveRed(){
+        if (getMoveList().get(2).toString().equals("E11")){
+            getBoard()[80].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[96].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[48].addValeur(Mark.RED, VALEUR_ENLIGNE);
+        } else if (getMoveList().get(2).toString().equals("E5")) {
+            getBoard()[140].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[126].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[168].addValeur(Mark.RED, VALEUR_ENLIGNE);
+        } else if (getMoveList().get(2).toString().equals("K11")) {
+            getBoard()[84].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[98].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[56].addValeur(Mark.RED, VALEUR_ENLIGNE);
+        } else if (getMoveList().get(2).toString().equals("K5")) {
+            getBoard()[128].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[144].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[176].addValeur(Mark.RED, VALEUR_ENLIGNE);
+        }
+    }
     public void updateBoard(ArrayList<Sequence> sequenceArrayList, Mark mark){
+
         for (Sequence seq : sequenceArrayList){
             String direction = seq.getSequenceDirection();
             int indexCaseAvant = -1;
             int indexCaseApres = -1;
+
+            int indexCaseDeuxAvant = -1;
+            int indexCaseDeuxApres = -1;
+
+            int row;
+            boolean caseAvantDeborde = false;
+            boolean caseApresDeborde = false;
+            boolean caseDeuxAvantDeborde = false;
+            boolean caseDeuxApresDeborde = false;
             switch (direction){
                 case "verticale":
-                    indexCaseAvant = seq.getIndexDebut() - 15;       //peut etre hors de la grille
+                    indexCaseAvant = seq.getIndexDebut() - 15;
                     indexCaseApres = seq.getIndexFin() + 15;
+                    indexCaseDeuxAvant = seq.getIndexDebut() - 30;
+                    indexCaseDeuxApres = seq.getIndexFin() + 30;
                     break;
                 case "horizontale":
-                    indexCaseAvant = seq.getIndexDebut() - 1;       //peut etre hors grille
-                    indexCaseApres = seq.getIndexFin() + 1;
+                    row = seq.getIndexDebut() / 15;
+                    if ((seq.getIndexDebut() - 1) / 15 == row){
+                        indexCaseAvant = seq.getIndexDebut() - 1;       //peut deborder sur autre ligne
+                    }else caseAvantDeborde = true;
+                    if ((seq.getIndexFin() + 1) / 15 == row){
+                        indexCaseApres = seq.getIndexFin() + 1;       //peut deborder sur autre ligne
+                    }else caseApresDeborde = true;
+                    if ((seq.getIndexDebut() - 2) / 15 == row){
+                        indexCaseDeuxAvant = seq.getIndexDebut() - 2;       //peut deborder sur autre ligne
+                    }else caseDeuxAvantDeborde = true;
+                    if ((seq.getIndexFin() + 2) / 15 == row){
+                        indexCaseDeuxApres = seq.getIndexFin() + 2;       //peut deborder sur autre ligne
+                    }else caseDeuxApresDeborde = true;
                     break;
                 case "diagonale sud-est":
                     indexCaseAvant = seq.getIndexDebut() - 16;
                     indexCaseApres = seq.getIndexFin() + 16;
+                    indexCaseDeuxAvant = seq.getIndexDebut() - 32;
+                    indexCaseDeuxApres = seq.getIndexFin() + 32;
                     break;
                 case "diagonale sud-ouest":
                     indexCaseAvant = seq.getIndexDebut() - 14;
                     indexCaseApres = seq.getIndexFin() + 14;
+                    indexCaseDeuxAvant = seq.getIndexDebut() - 28;
+                    indexCaseDeuxApres = seq.getIndexFin() + 28;
                     break;
             }
             int length = seq.getLength();
             int points = 0;
+            boolean threeInARowWithFourthSpaced = false;
             switch(length){
                 case 2:
-
+                    if (caseAvantDeborde || caseApresDeborde){
+                        points = TWO_CLOSED;
+                    }
                     if (indexCaseAvant >= 0 && indexCaseAvant < 225 && indexCaseApres >= 0 && indexCaseApres < 225){
                         if (getBoard()[indexCaseAvant].getMark() == mark.enemy() && getBoard()[indexCaseApres].getMark() == Mark.EMPTY){
                             getBoard()[indexCaseApres].setValeur(mark.enemy(), CAPTURE_VALUE);
                         } else if (getBoard()[indexCaseAvant].getMark() == Mark.EMPTY && getBoard()[indexCaseApres].getMark() == mark.enemy()) {
                             getBoard()[indexCaseAvant].setValeur(mark.enemy(), CAPTURE_VALUE);
                         }
+                        points = TWO;
                     }
-                    points = TWO;
+
                     break;
                 case 3:
+                    if (caseAvantDeborde || caseApresDeborde){
+                        points = THREE_CLOSED;
+
+                        if (indexCaseDeuxAvant >= 0 && indexCaseDeuxAvant < 225 && !caseDeuxAvantDeborde){
+                            if (getBoard()[indexCaseDeuxAvant].getMark() == seq.getMark() ){
+                                threeInARowWithFourthSpaced = true;
+                            }
+                        } else if (indexCaseDeuxApres >= 0 && indexCaseDeuxApres < 225 && !caseDeuxApresDeborde) {
+                            if (getBoard()[indexCaseDeuxApres].getMark() == seq.getMark()){
+                                threeInARowWithFourthSpaced = true;
+                            }
+                        }
+                    }
                     if (indexCaseAvant >= 0 && indexCaseAvant < 225 && indexCaseApres >= 0 && indexCaseApres < 225){
                         if (getBoard()[indexCaseAvant].getMark() == mark.enemy() || getBoard()[indexCaseApres].getMark() == mark.enemy()){
                             points = THREE_CLOSED;
-                        }else points = THREE_OPEN;
+                        }else {     //prendre en compte extremites
+                            if (indexCaseDeuxAvant >= 0 && indexCaseDeuxAvant < 225 && !caseDeuxAvantDeborde){
+                                if (getBoard()[indexCaseDeuxAvant].getMark() == seq.getMark() ){
+                                    threeInARowWithFourthSpaced = true;
+                                }
+                            } else if (indexCaseDeuxApres >= 0 && indexCaseDeuxApres < 225 && !caseDeuxApresDeborde) {
+                                if (getBoard()[indexCaseDeuxApres].getMark() == seq.getMark()){
+                                    threeInARowWithFourthSpaced = true;
+                                }
+                            }
+
+                                points = THREE_OPEN;
+                        }
                     }
                     break;
                 case 4:
+                    if (caseAvantDeborde || caseApresDeborde){
+                        points = FOUR_CLOSED;
+                    }
                     if (indexCaseAvant >= 0 && indexCaseAvant < 225 && indexCaseApres >= 0 && indexCaseApres < 225){
                         if (getBoard()[indexCaseAvant].getMark() == mark.enemy() || getBoard()[indexCaseApres].getMark() == mark.enemy()){
                             points = FOUR_CLOSED;
@@ -584,7 +679,8 @@ class Board {
                 case 5:
                     points = FIVE_IN_A_ROW;
             }
-            if (indexCaseAvant >= 0 && indexCaseAvant < 225 ){
+            //rendre les deux if en dessous une fonction qui prend la valeur a set, les cases a set et l index(?)
+            if (indexCaseAvant >= 0 && indexCaseAvant < 225 && !caseAvantDeborde){
                 if (seq.getMark() == mark){
                     getBoard()[indexCaseAvant].setValeur(mark, points);
                 }
@@ -592,12 +688,22 @@ class Board {
                     getBoard()[indexCaseAvant].setValeur(mark.enemy(), points);
                 }
             }
-            if (indexCaseApres >= 0 && indexCaseApres < 225){
+            if (indexCaseApres >= 0 && indexCaseApres < 225 && !caseApresDeborde){
                 if (seq.getMark() == mark){
                     getBoard()[indexCaseApres].setValeur(mark, points);
                 }
                 else {
                     getBoard()[indexCaseApres].setValeur(mark.enemy(), points);
+                }
+            }
+
+            if (threeInARowWithFourthSpaced){   //devrait etre mis dans update board
+                if (indexCaseAvant >= 0 && indexCaseAvant < 225 && indexCaseApres >= 0 && indexCaseApres < 225){
+                    if (getBoard()[indexCaseDeuxAvant].getMark() == seq.getMark() && !caseDeuxAvantDeborde){
+                        getBoard()[indexCaseAvant].setValeur(seq.getMark(), FOUR_OPEN);
+                    } else if (getBoard()[indexCaseDeuxApres].getMark() == seq.getMark() && !caseDeuxApresDeborde) {
+                        getBoard()[indexCaseApres].setValeur(seq.getMark(), FOUR_OPEN);
+                    }
                 }
             }
         }

@@ -10,7 +10,7 @@ class Client {
     private static Mark playerColor;
     private static final boolean DEBUG_MODE = true;
     private static Set<String> invalidMoves = new HashSet<>();
-    private static Set<String> occupiedPositions = new HashSet<>();
+    //private static Set<String> occupiedPositions = new HashSet<>();
     public static final String RESET = "\033[0m"; // Reset color
     public static final String RED = "\033[0;31m";
     public static final String BLACK = "\033[0;30m";
@@ -57,7 +57,7 @@ class Client {
         playerColor = color;
         ai = new CPUPlayer(color);
         invalidMoves.clear();
-        occupiedPositions.clear();
+        //occupiedPositions.clear();
 
         byte[] buffer = new byte[1024];
         int size = input.available();
@@ -91,7 +91,7 @@ class Client {
                     Move opponentMove = new Move(lastMove.charAt(0), 
                                                Integer.parseInt(lastMove.substring(1)));
                     gameBoard.play(opponentMove, playerColor.enemy());
-                    occupiedPositions.add(lastMove);
+                    //occupiedPositions.add(lastMove);
                     printBoard();
                 } catch (Exception e) {
                     debugPrint("Erreur lors de la mise à jour du plateau avec le coup adverse: " + e.getMessage());
@@ -106,7 +106,10 @@ class Client {
                 Move move = new Move(ourMove.charAt(0), 
                                    Integer.parseInt(ourMove.substring(1)));
                 gameBoard.play(move, playerColor);
-                occupiedPositions.add(ourMove);
+                if (playerColor == Mark.RED && gameBoard.getMoveCount() == 3){
+                    gameBoard.update2ndMoveRed();
+                }
+                //occupiedPositions.add(ourMove);
                 debugPrint("Notre coup joué: " + ourMove);
                 printBoard();
             } catch (Exception e) {
@@ -128,16 +131,15 @@ class Client {
 
             Move move = gameBoard.getMoveList().get(1);
             if (move.getIngameRow() >= 8){
-                if (move.getIngameCol() >= 'H'){
-                    return "H4";
-                }
-                else return "H4";
+                if (move.getIngameCol() > 'H'){
+                    return "K5";
+                }else return "E5";
             }
             else{
                 if (move.getIngameCol() > 'H'){
-                    return "D8";
+                    return "K11";
                 }
-                else return "L8";
+                else return "E11";
             }
         }
 
@@ -147,7 +149,8 @@ class Client {
                 ArrayList<Move> moves = ai.getNextMoveAB(gameBoard);        //pourrait retourner juste une valeur
                 for (Move move : moves) {
                     String moveStr = move.toString();
-                    if (!invalidMoves.contains(moveStr) && !occupiedPositions.contains(moveStr)) {
+
+                    if (!invalidMoves.contains(moveStr)) {
                         return moveStr;
                     }
                 }
@@ -199,12 +202,6 @@ class Client {
     }
 
 
-
-    private static boolean isValidPosition(int col, int row) {
-        return row >= 0 && row < 15 && col >= 0 && col < 15 && 
-               gameBoard.getMark(row, col) == Mark.EMPTY;
-    }
-
     private static void endGame(BufferedInputStream input, BufferedOutputStream output) throws IOException {
         byte[] buffer = new byte[16];
         int size = input.available();
@@ -240,7 +237,7 @@ class Client {
         if (!DEBUG_MODE) return;
         
         System.out.println("\nÉtat du plateau:");
-        System.out.println("  A B C D E F G H I J K L M N O");
+        System.out.println("   A B C D E F G H I J K L M N O");
         
         for (int i = 0; i < 15; i++) {
             System.out.printf("%2d", (15 - i));
@@ -256,7 +253,7 @@ class Client {
             System.out.printf(" %2d%n", (15 - i));
         }
         
-        System.out.println("  A B C D E F G H I J K L M N O");
+        System.out.println("   A B C D E F G H I J K L M N O");
         System.out.println("Coups joués: " + gameBoard.getMoveCount() + "\n");
 
 
