@@ -44,35 +44,32 @@ class Board {
     private int nbCapturesNoir = 0;
 
 
-    private Square[][] board;
+    private Square[] board;
 
-    // Ne pas changer la signature de cette méthode
-    /*public Board() {
-        board = new Square[NBLIGNES][NBCOLONNES];
+
+
+    public Board() {
+        board = new Square[225];
         letterToNumber = new HashMap<>();
         numberToLetter = new HashMap<>();
-        
 
-        for (int i = 0; i < NBLIGNES; i++){
-            for (int j = 0; j < NBCOLONNES; j++){
-                board[i][j] = new Square(i, j);
-            }
+        for (int i = 0; i < 225; i++) {
+            board[i] = new Square(i);
         }
 
         for (int i = 0; i < 15; i++) {
-            char letter = (char) ('A' + i); 
-            letterToNumber.put(letter, i);  
+            char letter = (char) ('A' + i);
+            letterToNumber.put(letter, i);
         }
         for (int i = 0; i < 15; i++) {
-            char letter = (char) ('A' + i); 
-            numberToLetter.put(i, letter);  
+            char letter = (char) ('A' + i);
+            numberToLetter.put(i, letter);
         }
         moveList = new ArrayList<>();
     }
 
     public Board(Board existing) {
-
-        board = new Square[NBLIGNES][NBCOLONNES];
+        board = new Square[225];
 
         for (int i = 0; i < 225; i++) {
             if (existing.getBoard()[i].getMark() == Mark.RED){
@@ -90,16 +87,6 @@ class Board {
             board[i].setIndex(i);
 
         }
-
-        for (int i = 0; i < NBLIGNES; i++){
-            for (int j = 0; j < NBCOLONNES; j++){
-                if (existing.)
-            }
-        }
-
-
-
-
         moveList = new ArrayList<>();
         for (Move move : existing.getMoveList()){
             int row = move.getIngameRow();
@@ -124,7 +111,7 @@ class Board {
         nbCapturesNoir = existing.getNbCapturesNoir();
 
 
-    }*/
+    }
 
     // Ajout de getters nécessaires
     public Mark getMark(int row, int col) {
@@ -551,19 +538,19 @@ class Board {
         if (getMoveList().get(2).toString().equals("E11")){
             getBoard()[80].addValeur(Mark.RED, VALEUR_ENLIGNE);
             getBoard()[96].addValeur(Mark.RED, VALEUR_ENLIGNE);
-            getBoard()[48].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[48].addValeur(Mark.RED, VALEUR_ENLIGNE-1);
         } else if (getMoveList().get(2).toString().equals("E5")) {
             getBoard()[140].addValeur(Mark.RED, VALEUR_ENLIGNE);
             getBoard()[126].addValeur(Mark.RED, VALEUR_ENLIGNE);
-            getBoard()[168].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[168].addValeur(Mark.RED, VALEUR_ENLIGNE-1);
         } else if (getMoveList().get(2).toString().equals("K11")) {
             getBoard()[84].addValeur(Mark.RED, VALEUR_ENLIGNE);
             getBoard()[98].addValeur(Mark.RED, VALEUR_ENLIGNE);
-            getBoard()[56].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[56].addValeur(Mark.RED, VALEUR_ENLIGNE-1);
         } else if (getMoveList().get(2).toString().equals("K5")) {
             getBoard()[128].addValeur(Mark.RED, VALEUR_ENLIGNE);
             getBoard()[144].addValeur(Mark.RED, VALEUR_ENLIGNE);
-            getBoard()[176].addValeur(Mark.RED, VALEUR_ENLIGNE);
+            getBoard()[176].addValeur(Mark.RED, VALEUR_ENLIGNE-1);
         }
     }
     public void updateBoard(ArrayList<Sequence> sequenceArrayList, Mark mark){
