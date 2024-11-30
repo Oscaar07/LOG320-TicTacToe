@@ -47,7 +47,7 @@ class Board {
     private Square[][] board;
 
     // Ne pas changer la signature de cette méthode
-    public Board() {
+    /*public Board() {
         board = new Square[NBLIGNES][NBCOLONNES];
         letterToNumber = new HashMap<>();
         numberToLetter = new HashMap<>();
@@ -124,7 +124,7 @@ class Board {
         nbCapturesNoir = existing.getNbCapturesNoir();
 
 
-    }
+    }*/
 
     // Ajout de getters nécessaires
     public Mark getMark(int row, int col) {
