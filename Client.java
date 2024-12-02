@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 class Client {
-    private static Board gameBoard;
+    private static Game gameBoard;
     private static CPUPlayer ai;
     private static Mark playerColor;
     private static final boolean DEBUG_MODE = true;
@@ -53,11 +53,10 @@ class Client {
     }
 
     private static void initializeGame(BufferedInputStream input, BufferedOutputStream output, Mark color) throws IOException {
-        gameBoard = new Board();
+        gameBoard = new Game();
         playerColor = color;
         ai = new CPUPlayer(color);
         invalidMoves.clear();
-        //occupiedPositions.clear();
 
         byte[] buffer = new byte[1024];
         int size = input.available();
@@ -237,7 +236,7 @@ class Client {
         if (!DEBUG_MODE) return;
         
         System.out.println("\nÉtat du plateau:");
-        System.out.println("   A B C D E F G H I J K L M N O");
+        System.out.println("     A B C D E F G H I J K L M N O");
         
         for (int i = 0; i < 15; i++) {
             System.out.printf("%2d", (15 - i));
@@ -253,25 +252,25 @@ class Client {
             System.out.printf(" %2d%n", (15 - i));
         }
         
-        System.out.println("   A B C D E F G H I J K L M N O");
+        System.out.println("     A B C D E F G H I J K L M N O");
         System.out.println("Coups joués: " + gameBoard.getMoveCount() + "\n");
 
 
 
         System.out.println("\nÉtat des menaces rouges:");
-        System.out.println("   A B C D E F G H I J K L M N O");
+        System.out.println("     A B C D E F G H I J K L M N O");
 
         for (int i = 0; i < 15; i++) {
             System.out.printf("%2d", (15 - i));
             for (int j = 0; j < 15; j++) {
-                int index = i * 15 + j;
-                if (gameBoard.getBoard()[index].getMark() == Mark.RED){
+
+                if (gameBoard.getBoard()[i][j].getMark() == Mark.RED){
                     System.out.print(RED + "  *" + RESET);
-                } else if (gameBoard.getBoard()[index].getMark() == Mark.BLACK) {
+                } else if (gameBoard.getBoard()[i][j].getMark() == Mark.BLACK) {
                     System.out.print(BLACK + "  *" + RESET);
                 }
                 else{
-                    int valeurMenacesRouges = gameBoard.getBoard()[index].getValue(Mark.RED);
+                    int valeurMenacesRouges = gameBoard.getBoard()[i][j].getValue(Mark.RED);
                     System.out.printf("%3d", (valeurMenacesRouges));
                 }
             }
@@ -279,25 +278,25 @@ class Client {
         }
 
         System.out.println("\nÉtat des menaces noires:");
-        System.out.println("   A B C D E F G H I J K L M N O");
+        System.out.println("     A B C D E F G H I J K L M N O");
 
         for (int i = 0; i < 15; i++) {
             System.out.printf("%2d", (15 - i));
             for (int j = 0; j < 15; j++) {
                 int index = i * 15 + j;
-                if (gameBoard.getBoard()[index].getMark() == Mark.RED){
+                if (gameBoard.getBoard()[i][j].getMark() == Mark.RED){
                     System.out.print(RED + "  *" + RESET);
-                } else if (gameBoard.getBoard()[index].getMark() == Mark.BLACK) {
+                } else if (gameBoard.getBoard()[i][j].getMark() == Mark.BLACK) {
                     System.out.print(BLACK + "  *" + RESET);
                 }
                 else{
-                    int valeurMenacesNoires = gameBoard.getBoard()[index].getValue(Mark.BLACK);
+                    int valeurMenacesNoires = gameBoard.getBoard()[i][j].getValue(Mark.BLACK);
                     System.out.printf("%3d", (valeurMenacesNoires));
                 }
             }
             System.out.printf(" %2d%n", (15 - i));
         }
 
-        System.out.println("   A B C D E F G H I J K L M N O");
+        System.out.println("     A B C D E F G H I J K L M N O");
     }
 }

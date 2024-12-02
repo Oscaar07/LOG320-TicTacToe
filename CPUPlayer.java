@@ -2,11 +2,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.IntBinaryOperator;
 
 class CPUPlayer {
     // Constantes pour la gestion de la profondeur
-    private static final int EARLY_GAME_DEPTH = 4;
+    private static final int EARLY_GAME_DEPTH = 2;
     private static final int MID_GAME_DEPTH = 6;
     private static final int LATE_GAME_DEPTH = 8;
     private static final int EARLY_GAME_MOVES = 60;
@@ -22,6 +21,11 @@ class CPUPlayer {
     private int currentMaxDepth;
     private Mark cpuMark;
 
+    private static final int NBLIGNES = 15;
+    private static final int NBCOLONNES = 15;
+
+
+
     public CPUPlayer(Mark mark) {
         this.cpuMark = mark;
         this.currentMaxDepth = EARLY_GAME_DEPTH;
@@ -29,7 +33,7 @@ class CPUPlayer {
 
 
     // Méthode principale pour obtenir le prochain coup
-    public ArrayList<Move> getNextMoveAB(Board board) {
+    public ArrayList<Move> getNextMoveAB(Game board) {
 
         adjustDepth(board);
         ArrayList<Move> moves = new ArrayList<>();
@@ -44,7 +48,7 @@ class CPUPlayer {
         return moves;
     }
 
-    private ArrayList<Move> findBestMove(Board board) throws TimeoutException {
+    private ArrayList<Move> findBestMove(Game board) throws TimeoutException {
         ArrayList<Move> bestMoves = new ArrayList<>();
         int bestValue = Integer.MIN_VALUE;
         int alpha = Integer.MIN_VALUE;
@@ -54,7 +58,7 @@ class CPUPlayer {
 
         for (Move move : possibleMoves) {
 
-            Board nextBoard = new Board(board);
+            Game nextBoard = new Game(board);
             nextBoard.play(move, cpuMark);
             
             int value = alphaBeta(nextBoard, currentMaxDepth - 1, alpha, beta, false);
@@ -74,51 +78,54 @@ class CPUPlayer {
         return bestMoves;
     }
 
-    private int alphaBeta(Board board, int depth, int alpha, int beta, boolean maximizing) 
+    private int alphaBeta(Game game, int depth, int alpha, int beta, boolean maximizing)
             throws TimeoutException {
 
         //il faut regarder pr une win avant tout
-        if (board.checkFor5inARow(Mark.RED) || board.getEvalCapturesRouge() == 1000000){
+        if (game.checkFor5inARow(Mark.RED) || game.getEvalCapturesRouge() == 1000000){
             return 10000000;
         }
-        else if (board.checkFor5inARow(Mark.BLACK) || board.getEvalCapturesNoir() == 1000000){
+        else if (game.checkFor5inARow(Mark.BLACK) || game.getEvalCapturesNoir() == 1000000){
             //return Integer.MIN_VALUE;
             return -10000000;
         }
 
 
 
-        if (depth == 0 || isTerminalNode(board)) {
+        if (depth == 0 || isTerminalNode(game)) {
             int bestBlackMove = -10000;
             int bestRedMove = -10000;
-            for (int i = 0; i < 225; i++){
-                if (board.getBoard()[i].getBlackThreatValue() > bestBlackMove && board.getBoard()[i].getMark() == Mark.EMPTY){
-                    bestBlackMove = board.getBoard()[i].getBlackThreatValue();
-                }
-                if (board.getBoard()[i].getRedThreatValue() > bestRedMove && board.getBoard()[i].getMark() == Mark.EMPTY){
-                    bestRedMove = board.getBoard()[i].getRedThreatValue();
+            for (int i = 0; i < NBLIGNES; i++){
+                for (int j = 0; j < NBCOLONNES; j++){
+                    if (game.getBoard()[i][j].getBlackThreatValue() > bestBlackMove && game.getBoard()[i][j].getMark() == Mark.EMPTY){
+                        bestBlackMove = game.getBoard()[i][j].getBlackThreatValue();
+                    }
+                    if (game.getBoard()[i][j].getRedThreatValue() > bestRedMove && game.getBoard()[i][j].getMark() == Mark.EMPTY){
+                        bestRedMove = game.getBoard()[i][j].getRedThreatValue();
+                    }
                 }
             }
+
             int moveEval;
             int captureEval;
 
             if (cpuMark == Mark.RED){
                 moveEval = (bestRedMove - bestBlackMove);
-                captureEval = (board.getEvalCapturesRouge() - board.getEvalCapturesNoir());
+                captureEval = (game.getEvalCapturesRouge() - game.getEvalCapturesNoir());
             }
             else{
                 moveEval = (bestBlackMove - bestRedMove);
-                captureEval = (board.getEvalCapturesNoir() - board.getEvalCapturesRouge());
+                captureEval = (game.getEvalCapturesNoir() - game.getEvalCapturesRouge());
             }
 
             return moveEval + captureEval;
         }
 
-        List<Move> moves = orderMoves(board.getPossibleMoves(), board);
+        List<Move> moves = orderMoves(game.getPossibleMoves(), game);
         int value = maximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
         for (Move move : moves) {
-            Board nextBoard = new Board(board);
+            Game nextBoard = new Game(game);
             nextBoard.play(move, maximizing ? cpuMark : cpuMark.enemy());
             
             int evalValue = alphaBeta(nextBoard, depth - 1, alpha, beta, !maximizing);
@@ -138,7 +145,7 @@ class CPUPlayer {
     }
 
 
-    private void adjustDepth(Board board) {
+    private void adjustDepth(Game board) {
         int moveCount = board.getMoveCount();
         if (moveCount < EARLY_GAME_MOVES) {
             currentMaxDepth = EARLY_GAME_DEPTH;
@@ -149,27 +156,27 @@ class CPUPlayer {
         }
     }
 
-    private List<Move> orderMoves(List<Move> moves, Board board) {
+    private List<Move> orderMoves(List<Move> moves, Game game) {
         // Utiliser une map pour stocker les scores
         Map<Move, Integer> moveScores = new HashMap<>();
         
         for (Move move : moves) {
-            int score = quickEvaluateMove(move, board);
+            int score = quickEvaluateMove(move, game);
             moveScores.put(move, score);
         }
         
         // Trier les coups selon leurs scores
         moves.sort((m1, m2) -> moveScores.get(m2).compareTo(moveScores.get(m1)));
-        moves.removeIf(move -> moveScores.get(move) == 0 && !board.getBoard()[move.getIndex()].isActiveSquare());
+        moves.removeIf(move -> moveScores.get(move) == 0 && !game.getBoard()[move.getGridRow()][move.getGridCol()].isActiveSquare());
         return moves;
     }
 
-    private int quickEvaluateMove(Move move, Board board) {
+    private int quickEvaluateMove(Move move, Game game) {
         int score = 0;
         
 
-        score += board.getBoard()[move.getIndex()].getValue(cpuMark);
-        score += board.getBoard()[move.getIndex()].getValue(cpuMark.enemy());
+        score += game.getBoard()[move.getGridRow()][move.getGridCol()].getValue(cpuMark);
+        score += game.getBoard()[move.getGridRow()][move.getGridCol()].getValue(cpuMark.enemy());
         
         return score;
     }
@@ -177,10 +184,10 @@ class CPUPlayer {
 
     // Méthodes utilitaires
 
-    private boolean isTerminalNode(Board board) {
-        return board.checkFor5inARow(cpuMark) || 
-               board.checkFor5inARow(cpuMark.enemy()) ||
-               board.getPossibleMoves().isEmpty();
+    private boolean isTerminalNode(Game game) {
+        return game.checkFor5inARow(cpuMark) ||
+               game.checkFor5inARow(cpuMark.enemy()) ||
+               game.getPossibleMoves().isEmpty();
                //captures sont dans une variable
     }
 

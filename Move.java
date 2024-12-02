@@ -56,4 +56,10 @@ class Move {
         int gridCol = col - 'A';
         return gridRow * 15 + gridCol;
     }
+    public int getGridRow(){
+        return Math.abs(row - 15);
+    }
+    public int getGridCol(){
+        return col - 'A';
+    }
 }

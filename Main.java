@@ -1,8 +1,6 @@
-import java.util.ArrayList;
-
 public class Main {
     public static void main(String[] args){
-        Board board = new Board();
+        Game board = new Game();
         /*CPUPlayer cpuPlayer = new CPUPlayer(Mark.X);
         Move move = new Move(0, 0);
         Move move2 = new Move(0, 1);

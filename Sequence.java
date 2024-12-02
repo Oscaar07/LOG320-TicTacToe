@@ -1,14 +1,20 @@
 public class Sequence {
     private Mark mark;
-    private int indexDebut;
-    private int indexFin;
     private int directionX;
     private int directionY;
     private int length;
+    private int rowDebut;
+    private int rowFin;
+    private int colDebut;
+    private int colFin;
 
-    public Sequence(int debut, int fin, Mark mark, int x, int y, int length){
-        this.indexDebut = debut;
-        this.indexFin = fin;
+
+
+    public Sequence(int rowDebut, int rowFin, int colDebut, int colFin, Mark mark, int x, int y, int length){
+        this.rowDebut = rowDebut;
+        this.rowFin = rowFin;
+        this.colDebut = colDebut;
+        this.colFin = colFin;
         this.mark = mark;
         this.directionX = x;
         this.directionY = y;
@@ -28,43 +34,33 @@ public class Sequence {
         }
     }
 
-    public int getIndexDebut() {
-        return indexDebut;
+    public int getColDirection() {
+        return directionX;
     }
 
-    public int getIndexFin() {
-        return indexFin;
+    public int getRowDirection() {
+        return directionY;
+    }
+
+    public int getRowFin() {
+        return rowFin;
+    }
+
+    public int getColDebut() {
+        return colDebut;
+    }
+
+    public int getColFin() {
+        return colFin;
+    }
+
+    public int getRowDebut(){
+        return rowDebut;
     }
     public int getLength(){
         return length;
     }
 
-    public int getSequenceLength(){
-        int counter = 0;
-        int indexJump = 0;
-        int i = indexDebut;
-        String direction = getSequenceDirection();
-        switch (direction){
-            case "verticale":
-                indexJump = 15;
-                break;
-            case "horizontale":
-                indexJump = 1;
-                break;
-            case "diagonale sud-est":
-                indexJump = 16;
-                break;
-            case "diagonale sud-ouest":
-                indexJump = 14;
-                break;
-        }
-        while (i < indexFin){
-            i += indexJump;
-            counter++;
-        }
-        return counter;
-
-    }
     public Mark getMark(){
         return mark;
     }

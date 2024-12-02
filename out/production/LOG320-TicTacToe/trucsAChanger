@@ -10,3 +10,12 @@
 
 12. prend bcp de temps quand 4 en ligne sur extremites
 Remettre -1 pr cases en ligne avec centre apres tests
+Captures fonctionnent a travers lignes
+
+extremites pas correctes
+
+3 in a row with 4th spaced
+
+s assurer qu on update board apres avoir retirer des pieces
+
+setValeur vs addValeur dans updateBoard
