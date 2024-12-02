@@ -90,7 +90,6 @@ class Client {
                     Move opponentMove = new Move(lastMove.charAt(0), 
                                                Integer.parseInt(lastMove.substring(1)));
                     gameBoard.play(opponentMove, playerColor.enemy());
-                    //occupiedPositions.add(lastMove);
                     printBoard();
                 } catch (Exception e) {
                     debugPrint("Erreur lors de la mise à jour du plateau avec le coup adverse: " + e.getMessage());
@@ -108,7 +107,6 @@ class Client {
                 if (playerColor == Mark.RED && gameBoard.getMoveCount() == 3){
                     gameBoard.update2ndMoveRed();
                 }
-                //occupiedPositions.add(ourMove);
                 debugPrint("Notre coup joué: " + ourMove);
                 printBoard();
             } catch (Exception e) {

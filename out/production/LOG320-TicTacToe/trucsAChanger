@@ -1,10 +1,5 @@
-5. 2e coup rouge peut etre plus proche
-7. valeur de sequence devrait etre diminue si impossible de se rendre a 5
-(proche des extremites)
-8. Ne voit pas les menaces quand il y a un trou dans la sequence
-(ex: 11011)
-9. ai essaie de capturer quand impossible aux extremites (points se retrouvent sur autre ligne)
-10. code peut identifier quand ligne depasse, mais il faut pouvoir mettre les points juste sur un bord
+
+
 11. tableau avec plus de points quand proche du centre
 3 en ligne pas de point extremite
 
@@ -12,10 +7,9 @@
 Remettre -1 pr cases en ligne avec centre apres tests
 Captures fonctionnent a travers lignes
 
-extremites pas correctes
 
-3 in a row with 4th spaced
 
-s assurer qu on update board apres avoir retirer des pieces
 
 setValeur vs addValeur dans updateBoard
+
+priorise pas beaucoup proteger des captures

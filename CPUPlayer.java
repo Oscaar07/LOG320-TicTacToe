@@ -5,7 +5,7 @@ import java.util.Map;
 
 class CPUPlayer {
     // Constantes pour la gestion de la profondeur
-    private static final int EARLY_GAME_DEPTH = 2;
+    private static final int EARLY_GAME_DEPTH = 5;
     private static final int MID_GAME_DEPTH = 6;
     private static final int LATE_GAME_DEPTH = 8;
     private static final int EARLY_GAME_MOVES = 60;
@@ -60,8 +60,13 @@ class CPUPlayer {
 
             Game nextBoard = new Game(board);
             nextBoard.play(move, cpuMark);
-            
-            int value = alphaBeta(nextBoard, currentMaxDepth - 1, alpha, beta, false);
+
+            int value;
+            if (cpuMark == Mark.RED){
+                value = alphaBeta(nextBoard, currentMaxDepth - 1, alpha, beta, false);
+            }else{
+                value = alphaBeta(nextBoard, currentMaxDepth - 1, alpha, beta, true);
+            }
 
             if (value > bestValue) {
                 bestValue = value;
@@ -81,14 +86,25 @@ class CPUPlayer {
     private int alphaBeta(Game game, int depth, int alpha, int beta, boolean maximizing)
             throws TimeoutException {
 
-        //il faut regarder pr une win avant tout
-        if (game.checkFor5inARow(Mark.RED) || game.getEvalCapturesRouge() == 1000000){
-            return 10000000;
+        if (cpuMark == Mark.RED){
+            //il faut regarder pr une win avant tout
+            if (game.checkFor5inARow(Mark.RED) || game.getEvalCapturesRouge() == 1000000){
+                return 10000000;
+            }
+            else if (game.checkFor5inARow(Mark.BLACK) || game.getEvalCapturesNoir() == 1000000){
+                //return Integer.MIN_VALUE;
+                return -10000000;
+            }
+        }else{
+            if (game.checkFor5inARow(Mark.RED) || game.getEvalCapturesRouge() == 1000000){
+                return -10000000;
+            }
+            else if (game.checkFor5inARow(Mark.BLACK) || game.getEvalCapturesNoir() == 1000000){
+                //return Integer.MIN_VALUE;
+                return 10000000;
+            }
         }
-        else if (game.checkFor5inARow(Mark.BLACK) || game.getEvalCapturesNoir() == 1000000){
-            //return Integer.MIN_VALUE;
-            return -10000000;
-        }
+
 
 
 

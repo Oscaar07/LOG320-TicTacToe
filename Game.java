@@ -27,7 +27,7 @@ class Game {
     private static final int THREE_CLOSED = 10;
     private static final int TWO = 5;
     private static final int TWO_CLOSED = 2;
-    private static final int CAPTURE_VALUE = 5;      //1000
+    private static final int CAPTURE_VALUE = 100;      //1000
 
     private static final int ONE_CAPTURE = 100;        //1000
     private static final int TWO_CAPTURE = 200;        //2000
@@ -35,7 +35,7 @@ class Game {
     private static final int FOUR_CAPTURE = 800;       //8000
     private static final int FIVE_CAPTURE = 1000000;    //1000000
 
-    private static final int VALEUR_ENLIGNE = 2;
+    private static final int VALEUR_ENLIGNE = 1;
 
     private static final int AJOUT_PIECE = 1;
 
@@ -576,11 +576,11 @@ class Game {
             int caseApresRow = seq.getRowFin() + seq.getRowDirection();
             int caseApresCol = seq.getColFin() + seq.getColDirection();
 
-            int caseDeuxAvantRow = seq.getRowFin() + seq.getRowDirection();
-            int caseDeuxAvantCol = seq.getColFin() + seq.getColDirection();
+            int caseDeuxAvantRow = seq.getRowDebut() - 2 * seq.getRowDirection();
+            int caseDeuxAvantCol = seq.getColDebut() - 2 * seq.getColDirection();
 
-            int caseDeuxApresRow = seq.getRowFin() + seq.getRowDirection();
-            int caseDeuxApresCol = seq.getColFin() + seq.getColDirection();
+            int caseDeuxApresRow = seq.getRowFin() + 2 * seq.getRowDirection();
+            int caseDeuxApresCol = seq.getColFin() + 2 * seq.getColDirection();
 
             if (isValidPosition(caseAvantRow, caseAvantCol)){
                 caseAvantValide = true;
