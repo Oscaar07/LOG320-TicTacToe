@@ -5,7 +5,7 @@ import java.util.Map;
 
 class CPUPlayer {
     // Constantes pour la gestion de la profondeur
-    private static final int EARLY_GAME_DEPTH = 5;
+    private static final int EARLY_GAME_DEPTH = 4;
     private static final int MID_GAME_DEPTH = 6;
     private static final int LATE_GAME_DEPTH = 8;
     private static final int EARLY_GAME_MOVES = 60;
@@ -50,7 +50,11 @@ class CPUPlayer {
 
     private ArrayList<Move> findBestMove(Game board) throws TimeoutException {
         ArrayList<Move> bestMoves = new ArrayList<>();
-        int bestValue = Integer.MIN_VALUE;
+        int bestValue;
+        if (cpuMark == Mark.RED){
+            bestValue = Integer.MIN_VALUE;
+        } else bestValue = Integer.MAX_VALUE;
+
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
@@ -62,53 +66,53 @@ class CPUPlayer {
             nextBoard.play(move, cpuMark);
 
             int value;
+
             if (cpuMark == Mark.RED){
-                value = alphaBeta(nextBoard, currentMaxDepth - 1, alpha, beta, false);
-            }else{
                 value = alphaBeta(nextBoard, currentMaxDepth - 1, alpha, beta, true);
+            }else{
+                value = alphaBeta(nextBoard, currentMaxDepth - 1, alpha, beta, false);
             }
 
-            if (value > bestValue) {
-                bestValue = value;
-                bestMoves.clear();
-                bestMoves.add(move);
-            } else if (value == bestValue) {
-                bestMoves.add(move);
+            if (cpuMark == Mark.RED){
+                if (value > bestValue) {
+                    bestValue = value;
+                    bestMoves.clear();
+                    bestMoves.add(move);
+                } else if (value == bestValue) {
+                    bestMoves.add(move);
+                }
+
+                alpha = Math.max(alpha, value);
+            }else{
+                if (value < bestValue) {
+                    bestValue = value;
+                    bestMoves.clear();
+                    bestMoves.add(move);
+                } else if (value == bestValue) {
+                    bestMoves.add(move);
+                }
+
+                beta = Math.min(alpha, value);
             }
 
-            alpha = Math.max(alpha, value);
 
         }
 
         return bestMoves;
     }
 
-    private int alphaBeta(Game game, int depth, int alpha, int beta, boolean maximizing)
+    private int alphaBeta(Game game, int depth, int alpha, int beta, boolean isAiPlayingRed)
             throws TimeoutException {
 
-        if (cpuMark == Mark.RED){
-            //il faut regarder pr une win avant tout
-            if (game.checkFor5inARow(Mark.RED) || game.getEvalCapturesRouge() == 1000000){
-                return 10000000;
-            }
-            else if (game.checkFor5inARow(Mark.BLACK) || game.getEvalCapturesNoir() == 1000000){
-                //return Integer.MIN_VALUE;
-                return -10000000;
-            }
-        }else{
-            if (game.checkFor5inARow(Mark.RED) || game.getEvalCapturesRouge() == 1000000){
-                return -10000000;
-            }
-            else if (game.checkFor5inARow(Mark.BLACK) || game.getEvalCapturesNoir() == 1000000){
-                //return Integer.MIN_VALUE;
-                return 10000000;
-            }
+
+        if (game.checkFor5inARow(Mark.RED) || game.getNbCapturesRouge() == 5){
+            return 10000000;
+        }
+        else if (game.checkFor5inARow(Mark.BLACK) || game.getNbCapturesNoir() == 5){
+            return -10000000;
         }
 
-
-
-
-        if (depth == 0 || isTerminalNode(game)) {
+        if (depth == 0) {
             int bestBlackMove = -10000;
             int bestRedMove = -10000;
             for (int i = 0; i < NBLIGNES; i++){
@@ -125,28 +129,32 @@ class CPUPlayer {
             int moveEval;
             int captureEval;
 
-            if (cpuMark == Mark.RED){
-                moveEval = (bestRedMove - bestBlackMove);
-                captureEval = (game.getEvalCapturesRouge() - game.getEvalCapturesNoir());
-            }
-            else{
-                moveEval = (bestBlackMove - bestRedMove);
-                captureEval = (game.getEvalCapturesNoir() - game.getEvalCapturesRouge());
-            }
+            moveEval = (bestRedMove - bestBlackMove);
+            captureEval = (game.getEvalCapturesRouge() - game.getEvalCapturesNoir());
 
             return moveEval + captureEval;
         }
 
         List<Move> moves = orderMoves(game.getPossibleMoves(), game);
-        int value = maximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        boolean notreTour = false;
+        if (depth % 2 == 1){
+            notreTour = true;
+        }
+
+        boolean isMaximizing = notreTour == isAiPlayingRed;
+
+        int value = isMaximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+
 
         for (Move move : moves) {
             Game nextBoard = new Game(game);
-            nextBoard.play(move, maximizing ? cpuMark : cpuMark.enemy());
+            nextBoard.play(move, notreTour ? cpuMark : cpuMark.enemy());
             
-            int evalValue = alphaBeta(nextBoard, depth - 1, alpha, beta, !maximizing);
+            int evalValue = alphaBeta(nextBoard, depth - 1, alpha, beta, isAiPlayingRed);
             
-            if (maximizing) {
+            if (isMaximizing) {
                 value = Math.max(value, evalValue);
                 alpha = Math.max(alpha, value);
             } else {

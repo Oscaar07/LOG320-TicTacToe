@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
 
 class Client {
@@ -17,9 +18,16 @@ class Client {
 
     public static void main(String[] args) {
         try {
-            Socket MyClient = new Socket("localhost", 8888);
+
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Entre IP : ");
+            String IP = scanner.nextLine();
+            Socket MyClient = new Socket(IP, 8888);
             BufferedInputStream input = new BufferedInputStream(MyClient.getInputStream());
             BufferedOutputStream output = new BufferedOutputStream(MyClient.getOutputStream());
+
+
             
             while (true) {
                 char cmd = (char)input.read();
