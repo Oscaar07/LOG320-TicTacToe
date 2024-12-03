@@ -27,13 +27,13 @@ class Game {
     private static final int THREE_CLOSED = 10;
     private static final int TWO = 5;
     private static final int TWO_CLOSED = 2;
-    private static final int CAPTURE_VALUE = 100;      //1000
+    private static final int CAPTURE_VALUE = 300;
 
-    private static final int ONE_CAPTURE = 100;        //1000
-    private static final int TWO_CAPTURE = 200;        //2000
-    private static final int THREE_CAPTURE = 300;      //4000
-    private static final int FOUR_CAPTURE = 800;       //8000
-    private static final int FIVE_CAPTURE = 1000000;    //1000000
+    private static final int ONE_CAPTURE = 100;
+    private static final int TWO_CAPTURE = 200;
+    private static final int THREE_CAPTURE = 300;
+    private static final int FOUR_CAPTURE = 800;
+    private static final int FIVE_CAPTURE = 1000000;
 
     private static final int VALEUR_ENLIGNE = 1;
 

@@ -9,7 +9,7 @@ class CPUPlayer {
     private static final int MID_GAME_DEPTH = 6;
     private static final int LATE_GAME_DEPTH = 8;
     private static final int EARLY_GAME_MOVES = 60;
-    private static final int LATE_GAME_MOVES = 20;
+    private static final int LATE_GAME_MOVES = 80;
 
 
 
