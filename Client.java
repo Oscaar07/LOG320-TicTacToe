@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
+import javax.swing.*;
 
 class Client {
     private static Game gameBoard;
@@ -20,10 +21,38 @@ class Client {
         try {
 
 
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Entre IP : ");
-            String IP = scanner.nextLine();
-            Socket MyClient = new Socket(IP, 8888);
+            // Scanner scanner = new Scanner(System.in);
+            // System.out.println("Entre IP : ");
+            // String IP = scanner.nextLine();
+            JFrame frame = new JFrame("Enter IP Address");
+            JTextField ipField = new JTextField(15);
+            JButton submitButton = new JButton("Submit");
+
+            submitButton.addActionListener(e -> {
+                synchronized (frame) {
+                    frame.notify();
+                }
+            });
+
+            frame.setLayout(new java.awt.FlowLayout());
+            frame.add(new JLabel("IP Address:"));
+            frame.add(ipField);
+            frame.add(submitButton);
+            frame.setSize(300, 100);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
+
+            synchronized (frame) {
+                try {
+                    frame.wait();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            String serverIP = ipField.getText();
+            frame.dispose();
+            Socket MyClient = new Socket(serverIP, 8888);
             BufferedInputStream input = new BufferedInputStream(MyClient.getInputStream());
             BufferedOutputStream output = new BufferedOutputStream(MyClient.getOutputStream());
 
