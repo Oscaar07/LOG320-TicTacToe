@@ -555,7 +555,7 @@ class Game {
     }
 
     public void updateBoard(ArrayList<Sequence> sequenceArrayList, Mark mark){
-        //clearValuesFromBoard();
+        clearValuesFromBoard();
 
         for (Sequence seq : sequenceArrayList){
             int length = seq.getLength();
@@ -658,23 +658,23 @@ class Game {
             }
 
             if (caseAvantValide && board[caseAvantRow][caseAvantCol].getMark() == Mark.EMPTY){
-                board[caseAvantRow][caseAvantCol].setValeur(seq.getMark(), points);
+                board[caseAvantRow][caseAvantCol].addValeur(seq.getMark(), points);
             }
             if (caseApresValide && board[caseApresRow][caseApresCol].getMark() == Mark.EMPTY){
-                board[caseApresRow][caseApresCol].setValeur(seq.getMark(), points);
+                board[caseApresRow][caseApresCol].addValeur(seq.getMark(), points);
             }
 
             if (twoInARowWithThirdSpacedAvant){
-                board[caseAvantRow][caseAvantCol].setValeur(seq.getMark(), THREE_OPEN);
+                board[caseAvantRow][caseAvantCol].addValeur(seq.getMark(), THREE_OPEN);
             }
             if (twoInARowWithThirdSpacedApres){
-                board[caseApresRow][caseApresCol].setValeur(seq.getMark(), THREE_OPEN);
+                board[caseApresRow][caseApresCol].addValeur(seq.getMark(), THREE_OPEN);
             }
             if (threeInARowWithFourthSpacedAvant){
-                board[caseAvantRow][caseAvantCol].setValeur(seq.getMark(), FOUR_OPEN);
+                board[caseAvantRow][caseAvantCol].addValeur(seq.getMark(), FOUR_OPEN);
             }
             if (threeInARowWithFourthSpacedApres){
-                board[caseApresRow][caseApresCol].setValeur(seq.getMark(), FOUR_OPEN);
+                board[caseApresRow][caseApresCol].addValeur(seq.getMark(), FOUR_OPEN);
             }
 
 

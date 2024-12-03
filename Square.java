@@ -8,53 +8,11 @@ public class Square {
     private int gridRow;
     private int gridCol;
 
-    private boolean sequenceHorizontale = false;
-    private boolean sequenceVerticale = false;
-    private boolean sequenceDiagGauche = false;
-    private boolean sequenceDiagDroite = false;
+
 
     private boolean activeSquare = false;
 
-    public boolean isSequenceHorizontale() {
-        return sequenceHorizontale;
-    }
 
-    public void setSequenceHorizontale(boolean sequenceHorizontale) {
-        this.sequenceHorizontale = sequenceHorizontale;
-    }
-
-    public boolean isSequenceVerticale() {
-        return sequenceVerticale;
-    }
-
-    public void setSequenceVerticale(boolean sequenceVerticale) {
-        this.sequenceVerticale = sequenceVerticale;
-    }
-
-    public boolean isSequenceDiagGauche() {
-        return sequenceDiagGauche;
-    }
-
-    public void setSequenceDiagGauche(boolean sequenceDiagGauche) {
-        this.sequenceDiagGauche = sequenceDiagGauche;
-    }
-
-    public boolean isSequenceDiagDroite() {
-        return sequenceDiagDroite;
-    }
-
-    public void setSequenceDiagDroite(boolean sequenceDiagDroite) {
-        this.sequenceDiagDroite = sequenceDiagDroite;
-    }
-
-    public Square(int index){
-        gridRow = index / 15;
-        gridCol = index % 15;
-        ingameRow = Math.abs(gridRow - 15);
-        ingameCol = (char)('A' + gridCol);
-        redThreatValue = 0;
-        blackThreatValue = 0;
-    }
 
     public Square(int row, int col){
         this.gridRow = row;
@@ -89,6 +47,7 @@ public class Square {
             int precedent = this.blackThreatValue;
             this.blackThreatValue = precedent + value;
         }
+        this.activeSquare = true;
     }
 
     public Mark getMark() {
