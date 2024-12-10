@@ -8,8 +8,6 @@ public class Sequence {
     private int colDebut;
     private int colFin;
 
-
-
     public Sequence(int rowDebut, int rowFin, int colDebut, int colFin, Mark mark, int x, int y, int length){
         this.rowDebut = rowDebut;
         this.rowFin = rowFin;
