@@ -3,6 +3,7 @@ public enum Mark {
     BLACK,
     EMPTY;
 
+    
     public Mark enemy() {
         if (this != Mark.EMPTY) {
             return this == Mark.RED ? Mark.BLACK : Mark.RED;
@@ -48,4 +49,6 @@ public enum Mark {
             default: throw new IllegalStateException("État invalide");
         }
     }
+
+
 }

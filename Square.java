@@ -7,7 +7,12 @@ public class Square {
     private char ingameCol;
     private int gridRow;
     private int gridCol;
+
+
+
     private boolean activeSquare = false;
+
+
 
     public Square(int row, int col){
         this.gridRow = row;
@@ -25,6 +30,7 @@ public class Square {
         else return blackThreatValue;
     }
 
+
     public void setValeur(Mark mark, int value) {       //peut-etre update ceux autour directement
         if (mark == Mark.RED){
             this.redThreatValue = value;
@@ -32,7 +38,6 @@ public class Square {
         else this.blackThreatValue = value;
         activeSquare = true;
     }
-    
     public void addValeur(Mark mark, int value){
         if (mark == Mark.RED){
             int precedent = this.redThreatValue;
