@@ -20,7 +20,6 @@ class Client {
     public static void main(String[] args) {
         try {
 
-
             // Scanner scanner = new Scanner(System.in);
             // System.out.println("Entre IP : ");
             // String IP = scanner.nextLine();
@@ -55,8 +54,6 @@ class Client {
             Socket MyClient = new Socket(serverIP, 8888);
             BufferedInputStream input = new BufferedInputStream(MyClient.getInputStream());
             BufferedOutputStream output = new BufferedOutputStream(MyClient.getOutputStream());
-
-
             
             while (true) {
                 char cmd = (char)input.read();
@@ -159,7 +156,6 @@ class Client {
 
     private static String getNextValidMove() {
 
-
         // Deuxième coup rouge - doit être à distance 3+ du centre
         if (gameBoard.getMoveCount() == 2 && playerColor == Mark.RED) {
 
@@ -196,9 +192,6 @@ class Client {
         return null;
     }
 
-
-
-
     // Méthode de validation des coups
     private static boolean isValidMove(String moveStr) {
         if (moveStr.equals("A0")) return false;
@@ -234,7 +227,6 @@ class Client {
             retryMove(output);
         }
     }
-
 
     private static void endGame(BufferedInputStream input, BufferedOutputStream output) throws IOException {
         byte[] buffer = new byte[16];
@@ -290,11 +282,8 @@ class Client {
         System.out.println("     A B C D E F G H I J K L M N O");
         System.out.println("Coups joués: " + gameBoard.getMoveCount() + "\n");
 
-
-
         System.out.println("\nÉtat des menaces rouges:");
         System.out.println("     A B C D E F G H I J K L M N O");
-
         for (int i = 0; i < 15; i++) {
             System.out.printf("%2d", (15 - i));
             for (int j = 0; j < 15; j++) {
@@ -331,7 +320,6 @@ class Client {
             }
             System.out.printf(" %2d%n", (15 - i));
         }
-
         System.out.println("     A B C D E F G H I J K L M N O");
     }
 }

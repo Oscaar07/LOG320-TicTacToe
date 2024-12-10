@@ -39,23 +39,19 @@ class Game {
 
     private static final int AJOUT_PIECE = 1;
 
-
     private static final int NBLIGNES = 15;
     private static final int NBCOLONNES = 15;
 
     private int nbCapturesRouge = 0;
     private int nbCapturesNoir = 0;
 
-
     private Square[][] board;
-
 
     // Ne pas changer la signature de cette méthode
     public Game() {
         board = new Square[NBLIGNES][NBCOLONNES];
         letterToNumber = new HashMap<>();
         numberToLetter = new HashMap<>();
-
 
         for (int i = 0; i < NBLIGNES; i++){
             for (int j = 0; j < NBCOLONNES; j++){
@@ -92,7 +88,6 @@ class Game {
                 board[i][j].setRedThreatValue(existing.board[i][j].getRedThreatValue());
                 board[i][j].setBlackThreatValue(existing.board[i][j].getBlackThreatValue());
                 //peut etre set l index
-
             }
         }
 
@@ -120,9 +115,6 @@ class Game {
         nbCapturesNoir = existing.getNbCapturesNoir();
 
     }
-
-
-
 
     // Ajout de getters nécessaires
     public Mark getMark(int row, int col) {
@@ -170,13 +162,10 @@ class Game {
             int rowNumber = rowNumbersAroundIndex[j];
             int colNumber = colNumbersAroundIndex[j];
             if (isValidPosition(row + rowNumber, col + colNumber)){ //si la case autour est dans la grille
-
                 board[row + rowNumber][col + colNumber].addValeur(mark, value);
             }
-
         }
     }
-
 
     private boolean isValidPosition(int row, int col) {
         return row >= 0 && row < 15 && col >= 0 && col < 15;
@@ -218,7 +207,6 @@ class Game {
                 }
             }
         }
-
         return false;
     }
 
@@ -247,7 +235,6 @@ class Game {
                 }
             }
         }
-        
         return moves;
     }
 
@@ -256,8 +243,6 @@ class Game {
         int col = letterToNumber.get(move.getIngameCol());
         return board[row][col].getMark() == Mark.EMPTY;
     }
-
-
 
     public Square[][] getBoard() {
         return board;
@@ -305,7 +290,6 @@ class Game {
                 Sequence seq3 = new Sequence(i, i, colDebut, NBCOLONNES - 1, mark, 1, 0, counterMarkEnSuite);
                 sequenceArrayList.add(seq3);
             }
-
         }
 
         //sequences verticales
@@ -337,7 +321,6 @@ class Game {
                     mark = null;
                     counterMarkEnSuite = 0;
                 }
-
             }
             if (counterMarkEnSuite >= 2){
                 Sequence seq3 = new Sequence(ligneDebut, NBLIGNES - 1, i, i, mark, 0, 1, counterMarkEnSuite);
@@ -385,8 +368,6 @@ class Game {
                 sequenceArrayList.add(seq3);
             }
         }
-
-
 
         //sequences diagonales haut-gauche a bas-droite (x:+1, y:+1)
         //diagonale superieure
@@ -510,7 +491,6 @@ class Game {
                 sequenceArrayList.add(seq3);
             }
         }
-
         return sequenceArrayList;
     }
 
@@ -539,7 +519,6 @@ class Game {
             for (int j = 0; j < NBCOLONNES; j++){
                 board[i][j].setRedThreatValue(0);
                 board[i][j].setBlackThreatValue(0);
-
             }
         }
         for (int i = 0; i < NBLIGNES; i++){
@@ -551,7 +530,6 @@ class Game {
                 }
             }
         }
-
     }
 
     public void updateBoard(ArrayList<Sequence> sequenceArrayList, Mark mark){
@@ -619,7 +597,6 @@ class Game {
                         }
                         points = TWO;
                     }
-
                     break;
                 case 3:
                     if (caseAvantValide ^ caseApresValide){
@@ -656,14 +633,12 @@ class Game {
                 case 5:
                     break;
             }
-
             if (caseAvantValide && board[caseAvantRow][caseAvantCol].getMark() == Mark.EMPTY){
                 board[caseAvantRow][caseAvantCol].addValeur(seq.getMark(), points);
             }
             if (caseApresValide && board[caseApresRow][caseApresCol].getMark() == Mark.EMPTY){
                 board[caseApresRow][caseApresCol].addValeur(seq.getMark(), points);
             }
-
             if (twoInARowWithThirdSpacedAvant){
                 board[caseAvantRow][caseAvantCol].addValeur(seq.getMark(), THREE_OPEN);
             }
@@ -676,8 +651,6 @@ class Game {
             if (threeInARowWithFourthSpacedApres){
                 board[caseApresRow][caseApresCol].addValeur(seq.getMark(), FOUR_OPEN);
             }
-
-
         }
     }
 
@@ -709,7 +682,6 @@ class Game {
                 }
             }
         }
-
         return directionsCapture;
     }
 
@@ -718,10 +690,8 @@ class Game {
         for (int i = 0; i < captureDirections.size() / 2; i += 2){
             board[startingRow + captureDirections.get(i)][startingCol + captureDirections.get(i + 1)].setMark(Mark.EMPTY);
             addValue(startingRow + captureDirections.get(i), startingCol + captureDirections.get(i + 1), mark.enemy(), -AJOUT_PIECE);
-
             board[startingRow + 2 * captureDirections.get(i)][startingCol + 2 * captureDirections.get(i + 1)].setMark(Mark.EMPTY);
             addValue(startingRow + 2 * captureDirections.get(i), startingCol + 2 * captureDirections.get(i + 1), mark.enemy(), -AJOUT_PIECE);
-
         }
 
         if (mark == Mark.RED){
@@ -731,7 +701,6 @@ class Game {
             nbCapturesNoir++;
         }
     }
-
 
     public int getEvalCapturesNoir() {
         return switch (nbCapturesNoir) {

@@ -11,12 +11,6 @@ class CPUPlayer {
     private static final int EARLY_GAME_MOVES = 60;
     private static final int LATE_GAME_MOVES = 80;
 
-
-
-    // Gestion du temps
-    private static final long TIME_LIMIT = 4800; // 4.8 secondes
-    private long startTime;
-
     // Cache et profondeur
     private int currentMaxDepth;
     private Mark cpuMark;
@@ -24,13 +18,10 @@ class CPUPlayer {
     private static final int NBLIGNES = 15;
     private static final int NBCOLONNES = 15;
 
-
-
     public CPUPlayer(Mark mark) {
         this.cpuMark = mark;
         this.currentMaxDepth = EARLY_GAME_DEPTH;
     }
-
 
     // Méthode principale pour obtenir le prochain coup
     public ArrayList<Move> getNextMoveAB(Game board) {
@@ -94,8 +85,6 @@ class CPUPlayer {
 
                 beta = Math.min(alpha, value);
             }
-
-
         }
 
         return bestMoves;
@@ -103,7 +92,6 @@ class CPUPlayer {
 
     private int alphaBeta(Game game, int depth, int alpha, int beta, boolean isAiPlayingRed)
             throws TimeoutException {
-
 
         if (game.checkFor5inARow(Mark.RED) || game.getNbCapturesRouge() == 5){
             return 10000000;
@@ -146,8 +134,6 @@ class CPUPlayer {
 
         int value = isMaximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-
-
         for (Move move : moves) {
             Game nextBoard = new Game(game);
             nextBoard.play(move, notreTour ? cpuMark : cpuMark.enemy());
@@ -167,7 +153,6 @@ class CPUPlayer {
 
         return value;
     }
-
 
     private void adjustDepth(Game board) {
         int moveCount = board.getMoveCount();
@@ -198,21 +183,10 @@ class CPUPlayer {
     private int quickEvaluateMove(Move move, Game game) {
         int score = 0;
         
-
         score += game.getBoard()[move.getGridRow()][move.getGridCol()].getValue(cpuMark);
         score += game.getBoard()[move.getGridRow()][move.getGridCol()].getValue(cpuMark.enemy());
         
         return score;
-    }
-
-
-    // Méthodes utilitaires
-
-    private boolean isTerminalNode(Game game) {
-        return game.checkFor5inARow(cpuMark) ||
-               game.checkFor5inARow(cpuMark.enemy()) ||
-               game.getPossibleMoves().isEmpty();
-               //captures sont dans une variable
     }
 
     // Exception personnalisée pour la gestion du timeout
@@ -221,43 +195,4 @@ class CPUPlayer {
             super("Time limit exceeded");
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
