@@ -24,7 +24,7 @@ class CPUPlayer {
     }
 
     // Méthode principale pour obtenir le prochain coup
-    public ArrayList<Move> getNextMoveAB(Game board) {
+    public ArrayList<Move> getNextMoveAB(Board board) {
 
         adjustDepth(board);
         ArrayList<Move> moves = new ArrayList<>();
@@ -39,7 +39,7 @@ class CPUPlayer {
         return moves;
     }
 
-    private ArrayList<Move> findBestMove(Game board) throws TimeoutException {
+    private ArrayList<Move> findBestMove(Board board) throws TimeoutException {
         ArrayList<Move> bestMoves = new ArrayList<>();
         int bestValue;
         if (cpuMark == Mark.RED){
@@ -53,7 +53,7 @@ class CPUPlayer {
 
         for (Move move : possibleMoves) {
 
-            Game nextBoard = new Game(board);
+            Board nextBoard = new Board(board);
             nextBoard.play(move, cpuMark);
 
             int value;
@@ -90,7 +90,7 @@ class CPUPlayer {
         return bestMoves;
     }
 
-    private int alphaBeta(Game game, int depth, int alpha, int beta, boolean isAiPlayingRed)
+    private int alphaBeta(Board game, int depth, int alpha, int beta, boolean isAiPlayingRed)
             throws TimeoutException {
 
         if (game.checkFor5inARow(Mark.RED) || game.getNbCapturesRouge() == 5){
@@ -135,7 +135,7 @@ class CPUPlayer {
         int value = isMaximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
         for (Move move : moves) {
-            Game nextBoard = new Game(game);
+            Board nextBoard = new Board(game);
             nextBoard.play(move, notreTour ? cpuMark : cpuMark.enemy());
             
             int evalValue = alphaBeta(nextBoard, depth - 1, alpha, beta, isAiPlayingRed);
@@ -154,7 +154,7 @@ class CPUPlayer {
         return value;
     }
 
-    private void adjustDepth(Game board) {
+    private void adjustDepth(Board board) {
         int moveCount = board.getMoveCount();
         if (moveCount < EARLY_GAME_MOVES) {
             currentMaxDepth = EARLY_GAME_DEPTH;
@@ -165,7 +165,7 @@ class CPUPlayer {
         }
     }
 
-    private List<Move> orderMoves(List<Move> moves, Game game) {
+    private List<Move> orderMoves(List<Move> moves, Board game) {
         // Utiliser une map pour stocker les scores
         Map<Move, Integer> moveScores = new HashMap<>();
         
@@ -180,7 +180,7 @@ class CPUPlayer {
         return moves;
     }
 
-    private int quickEvaluateMove(Move move, Game game) {
+    private int quickEvaluateMove(Move move, Board game) {
         int score = 0;
         
         score += game.getBoard()[move.getGridRow()][move.getGridCol()].getValue(cpuMark);
